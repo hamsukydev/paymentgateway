@@ -1,0 +1,79 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}
+URGENT: Escalated Support Ticket #{{ ticket.ticket_id }}
+{% endblock %}
+
+{% block content %}
+<h1 style="color: #e74a3b;">🚨 Ticket Escalation Notice</h1>
+
+<p>Dear {{ recipient.get_full_name|default:recipient.username }},</p>
+
+<p>
+    A support ticket has been <strong style="color: #e74a3b;">escalated</strong> and requires immediate attention.
+</p>
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <tr>
+        <td><strong>Ticket ID:</strong></td>
+        <td>{{ ticket.ticket_id }}</td>
+    </tr>
+    <tr>
+        <td><strong>Subject:</strong></td>
+        <td>{{ ticket.subject }}</td>
+    </tr>
+    <tr>
+        <td><strong>Priority:</strong></td>
+        <td><span style="color: #e74a3b; font-weight: bold;">ESCALATED</span></td>
+    </tr>
+    <tr>
+        <td><strong>Status:</strong></td>
+        <td>{{ ticket.get_status_display }}</td>
+    </tr>
+    <tr>
+        <td><strong>Age:</strong></td>
+        <td>{{ ticket_age_hours }} hours</td>
+    </tr>
+    {% if ticket.assigned_to %}
+    <tr>
+        <td><strong>Assigned To:</strong></td>
+        <td>{{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}</td>
+    </tr>
+    {% endif %}
+</table>
+
+<h2 style="margin-top: 20px;">📌 Escalation Reason</h2>
+<p>{{ escalation_reason|default:"Not specified" }}</p>
+
+<h2 style="margin-top: 20px;">🏢 Merchant Information</h2>
+<p>
+    <strong>Business Name:</strong> {{ ticket.merchant.business_name }}<br>
+    <strong>Email:</strong> {{ ticket.merchant.business_email }}<br>
+    <strong>Phone:</strong> {{ ticket.merchant.business_phone }}<br>
+    <strong>Account Age:</strong> {{ merchant_account_age_days }} days
+</p>
+
+<h2 style="margin-top: 20px;">📝 Original Message</h2>
+<p>{{ ticket.message|linebreaks }}</p>
+
+<h2 style="margin-top: 20px;">💬 Recent Replies</h2>
+{% if recent_replies %}
+    {% for reply in recent_replies %}
+    <div style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fc; border-left: 4px solid {% if reply.is_admin %}#4e73df{% else %}#858796{% endif %};">
+        <p><strong>{{ reply.user.get_full_name|default:reply.user.username }}</strong>
+        <small style="color: #6c757d;">({{ reply.created_at|date:"M d, Y H:i" }})</small></p>
+        <p>{{ reply.message|linebreaks }}</p>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No replies yet.</p>
+{% endif %}
+
+<p style="margin-top: 30px;">
+    This ticket requires your <strong>immediate review</strong>. Please intervene or assign accordingly.
+</p>
+
+<p style="text-align: center; margin-top: 30px;">
+    <a href="{{ ticket_url }}" style="background-color: #4e73df; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">🔍 View Ticket</a>
+</p>
+{% endblock %}

@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            padding: 10px 24px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        .menu-items {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin-bottom: 5px;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background-color: rgba(52, 105, 198, 0.04);
+            color: var(--primary-color);
+        }
+        
+        .menu-link.active {
+            background-color: rgba(52, 105, 198, 0.08);
+            color: var (--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .menu-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .user-menu-toggle {
+            color: var(--text-color);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-menu-toggle:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Content header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Support content */
+        .support-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        
+        /* Support form */
+        .support-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .support-card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .support-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+        
+        .support-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--border-radius);
+            background-color: rgba(52, 105, 198, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .support-card-body {
+            padding: 20px;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            color: var(--text-color);
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 105, 198, 0.2);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px 12px;
+        }
+        
+        .form-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .form-file {
+            position: relative;
+        }
+        
+        .form-file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .form-file-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        .form-file-icon {
+            margin-right: 8px;
+            color: var(--text-muted);
+        }
+        
+        .form-file-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Alert styles */
+        .alert {
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .alert-success {
+            background-color: rgba(14, 173, 105, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .alert-info {
+            background-color: rgba(52, 105, 198, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .alert-icon {
+            margin-right: 12px;
+            font-size: 20px;
+            line-height: 24px;
+        }
+        
+        .alert-success .alert-icon {
+            color: var(--success-color);
+        }
+        
+        .alert-danger .alert-icon {
+            color: var(--danger-color);
+        }
+        
+        .alert-warning .alert-icon {
+            color: var(--warning-color);
+        }
+        
+        .alert-info .alert-icon {
+            color: var(--primary-color);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        
+        /* Contact info */
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(52, 105, 198, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+        
+        .contact-content {
+            flex: 1;
+        }
+        
+        .contact-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .contact-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0;
+        }
+        
+        .contact-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Quick help */
+        .help-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+        
+        .help-link:last-child {
+            margin-bottom: 0;
+        }
+        
+        .help-link:hover {
+            background-color: rgba(52, 105, 198, 0.04);
+        }
+        
+        .help-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            background-color: rgba(52, 105, 198, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+        
+        .help-content {
+            flex: 1;
+        }
+        
+        .help-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 2px;
+        }
+        
+        .help-description {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        
+        .help-arrow {
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+        
+        /* System status */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-name {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .status-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-operational {
+            color: var(--success-color);
+        }
+        
+        .status-issue {
+            color: var(--warning-color);
+        }
+        
+        .status-down {
+            color: var(--danger-color);
+        }
+        
+        /* Recent tickets */
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .tickets-table th,
+        .tickets-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tickets-table th {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+        
+        .tickets-table tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+        
+        .tickets-table td:last-child,
+        .tickets-table th:last-child {
+            text-align: right;
+        }
+        
+        .ticket-subject {
+            font-weight: 500;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ticket-icon {
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .ticket-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-open {
+            background-color: rgba(52, 105, 198, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .status-in-progress {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-resolved {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-closed {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--text-muted);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            color: var(--text-muted);
+            opacity: 0.5;
+            margin-bottom: 16px;
+        }
+        
+        .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .empty-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        /* Responsive */
+        .sidebar-toggle {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 20px;
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .support-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle.active {
+                left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle:not(.active) {
+                left: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-col {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .tickets-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+        
+        .form-row {
+            display: flex;
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+        
+        .form-col {
+            flex: 1;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"></span>
+                    HamsukyPay
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Main</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_dashboard' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-th-large"></i></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_analytics' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_transactions' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-exchange-alt"></i></span>
+                                Transactions
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_customers' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                                Customers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Payments</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payment_links' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-link"></i></span>
+                                Payment Links
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_invoices' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-receipt"></i></span>
+                                Invoices
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payouts' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-money-check-alt"></i></span>
+                                Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Developer</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-code"></i></span>
+                                API Keys
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-book"></i></span>
+                                Documentation
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_webhooks' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-plug"></i></span>
+                                Webhooks
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Account</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_settings' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                                Settings
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_support' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-life-ring"></i></span>
+                                Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ merchant.business_name|slice:":1" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ merchant.business_name }}</div>
+                        <div class="user-role">Verified Merchant</div>
+                    </div>
+                    <div class="user-menu-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar toggle -->
+        <div class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Customer Support</h1>
+                
+                <div class="header-actions">
+                    <a href="#" class="btn btn-outline btn-icon btn-sm">
+                        <i class="fas fa-book"></i> Knowledge Base
+                    </a>
+                </div>
+            </div>
+            
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <div class="alert-icon">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="alert-content">
+                        {{ message }}
+                    </div>
+                    <button type="button" class="alert-close" data-dismiss="alert">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="support-container">
+                <!-- Left Column -->
+                <div class="left-column">
+                    <!-- New Support Request -->
+                    <div class="support-card">
+                        <div class="support-card-header">
+                            <div class="support-card-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <h2 class="support-card-title">Submit a Support Request</h2>
+                        </div>
+                        
+                        <div class="support-card-body">
+                            <form method="post" action="{% url 'payments:merchant_support' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label class="form-label" for="ticket_type">Issue Type *</label>
+                                            <select class="form-select" id="ticket_type" name="ticket_type" required>
+                                                <option value="" selected disabled>Select an issue type</option>
+                                                <option value="account">Account Issues</option>
+                                                <option value="payment">Payment Processing</option>
+                                                <option value="integration">API Integration</option>
+                                                <option value="billing">Billing & Invoices</option>
+                                                <option value="feature">Feature Request</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label class="form-label" for="priority">Priority</label>
+                                            <select class="form-select" id="priority" name="priority">
+                                                <option value="low">Low</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="high">High</option>
+                                                <option value="urgent">Urgent</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="subject">Subject *</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required placeholder="Brief description of your issue">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="message">Message *</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required placeholder="Please provide details about your issue..."></textarea>
+                                    <span class="form-text">Please include any relevant details that could help us resolve your issue faster.</span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="attachment">Attachment (Optional)</label>
+                                    <div class="form-file">
+                                        <input type="file" id="attachment" name="attachment" class="form-file-input">
+                                        <label class="form-file-label" for="attachment">
+                                            <span class="form-file-icon"><i class="fas fa-paperclip"></i></span>
+                                            <span class="form-file-text">Choose file</span>
+                                        </label>
+                                    </div>
+                                    <span class="form-text">Max file size: 5MB. Supported formats: jpg, png, pdf, zip.</span>
+                                </div>
+                                
+                                <div style="text-align: right;">
+                                    <button type="submit" class="btn btn-primary btn-icon">
+                                        <i class="fas fa-paper-plane"></i> Submit Request
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Support Tickets -->
+                    <div class="support-card">
+                        <div class="support-card-header">
+                            <div class="support-card-icon">
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <h2 class="support-card-title">Recent Support Tickets</h2>
+                        </div>
+                        
+                        <div class="support-card-body" style="padding: 0;">
+                            {% if support_tickets %}
+                                <table class="tickets-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Subject</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Last Update</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ticket in support_tickets %}
+                                        <tr>
+                                            <td>{{ ticket.ticket_id }}</td>
+                                            <td>
+                                                <div class="ticket-subject">
+                                                    {% if ticket.ticket_type == 'payment' %}
+                                                        <i class="fas fa-credit-card ticket-icon"></i>
+                                                    {% elif ticket.ticket_type == 'account' %}
+                                                        <i class="fas fa-user-circle ticket-icon"></i>
+                                                    {% elif ticket.ticket_type == 'integration' %}
+                                                        <i class="fas fa-code ticket-icon"></i>
+                                                    {% elif ticket.ticket_type == 'billing' %}
+                                                        <i class="fas fa-file-invoice-dollar ticket-icon"></i>
+                                                    {% elif ticket.ticket_type == 'feature' %}
+                                                        <i class="fas fa-lightbulb ticket-icon"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-question-circle ticket-icon"></i>
+                                                    {% endif %}
+                                                    {{ ticket.subject }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if ticket.status == 'open' %}
+                                                    <span class="ticket-status status-open">Open</span>
+                                                {% elif ticket.status == 'in_progress' %}
+                                                    <span class="ticket-status status-in-progress">In Progress</span>
+                                                {% elif ticket.status == 'resolved' %}
+                                                    <span class="ticket-status status-resolved">Resolved</span>
+                                                {% elif ticket.status == 'closed' %}
+                                                    <span class="ticket-status status-closed">Closed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ ticket.created_at|date:"M d, Y" }}</td>
+                                            <td>{{ ticket.updated_at|date:"M d, Y" }}</td>
+                                            <td style="text-align: right;">
+                                                <a href="#" class="btn btn-outline btn-sm">View</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-ticket-alt"></i>
+                                    </div>
+                                    <h3 class="empty-title">No support tickets yet</h3>
+                                    <p class="empty-description">Your support tickets will appear here once you create them.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="right-column">
+                    <!-- Contact Information -->
+                    <div class="support-card">
+                        <div class="support-card-header">
+                            <div class="support-card-icon">
+                                <i class="fas fa-address-card"></i>
+                            </div>
+                            <h2 class="support-card-title">Contact Information</h2>
+                        </div>
+                        
+                        <div class="support-card-body">
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <div class="contact-label">Email Support</div>
+                                    <div class="contact-value">
+                                        <a href="mailto:support@hamsukypay.com" class="contact-link">support@hamsukypay.com</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <div class="contact-label">Phone Support</div>
+                                    <div class="contact-value">+234 (0) 800-HAMSUKY</div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <div class="contact-label">Business Hours</div>
+                                    <div class="contact-value">
+                                        Monday - Friday: 8am - 6pm WAT<br>
+                                        Saturday: 10am - 2pm WAT<br>
+                                        Sunday: Closed
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="contact-content">
+                                    <div class="contact-label">Emergency Support</div>
+                                    <div class="contact-value">Available 24/7 for urgent matters</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Help -->
+                    <div class="support-card">
+                        <div class="support-card-header">
+                            <div class="support-card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h2 class="support-card-title">Quick Help</h2>
+                        </div>
+                        
+                        <div class="support-card-body">
+                            <a href="#" class="help-link">
+                                <div class="help-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="help-content">
+                                    <div class="help-title">Documentation</div>
+                                    <div class="help-description">Detailed guides & API references</div>
+                                </div>
+                                <div class="help-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="help-link">
+                                <div class="help-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div class="help-content">
+                                    <div class="help-title">FAQs</div>
+                                    <div class="help-description">Common questions & answers</div>
+                                </div>
+                                <div class="help-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="help-link">
+                                <div class="help-icon">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <div class="help-content">
+                                    <div class="help-title">Video Tutorials</div>
+                                    <div class="help-description">Step-by-step video guides</div>
+                                </div>
+                                <div class="help-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                            
+                            <a href="#" class="help-link">
+                                <div class="help-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="help-content">
+                                    <div class="help-title">Community Forum</div>
+                                    <div class="help-description">Connect with other merchants</div>
+                                </div>
+                                <div class="help-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="support-card">
+                        <div class="support-card-header">
+                            <div class="support-card-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <h2 class="support-card-title">System Status</h2>
+                        </div>
+                        
+                        <div class="support-card-body">
+                            <div style="text-align: center; margin-bottom: 16px;">
+                                <span class="ticket-status status-open" style="padding: 6px 12px;">All Systems Operational</span>
+                                <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+                                    Last updated: April 30, 2025 13:45 WAT
+                                </div>
+                            </div>
+                            
+                            <hr style="margin: 16px 0; border: 0; border-top: 1px solid var(--border-color);">
+                            
+                            <div class="status-item">
+                                <div class="status-name">Payment Processing</div>
+                                <div class="status-value status-operational">
+                                    <i class="fas fa-check-circle"></i> Operational
+                                </div>
+                            </div>
+                            
+                            <div class="status-item">
+                                <div class="status-name">Dashboard & Analytics</div>
+                                <div class="status-value status-operational">
+                                    <i class="fas fa-check-circle"></i> Operational
+                                </div>
+                            </div>
+                            
+                            <div class="status-item">
+                                <div class="status-name">API Services</div>
+                                <div class="status-value status-operational">
+                                    <i class="fas fa-check-circle"></i> Operational
+                                </div>
+                            </div>
+                            
+                            <div class="status-item">
+                                <div class="status-name">Webhooks</div>
+                                <div class="status-value status-operational">
+                                    <i class="fas fa-check-circle"></i> Operational
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 16px; text-align: center;">
+                                <a href="#" class="btn btn-outline btn-sm" style="width: 100%;">
+                                    View Status Page
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarToggle.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-active');
+            
+            // Change icon
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Custom file input
+        const fileInput = document.getElementById('attachment');
+        const fileLabel = document.querySelector('.form-file-text');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileLabel.textContent = this.files[0].name;
+            } else {
+                fileLabel.textContent = 'Choose file';
+            }
+        });
+        
+        // Close alert
+        const alertCloseButtons = document.querySelectorAll('.alert-close');
+        alertCloseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const alert = this.closest('.alert');
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

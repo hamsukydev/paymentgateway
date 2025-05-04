@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Login - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 0;
+            position: relative;
+        }
+        
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.4;
+        }
+        
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            top: -100px;
+            right: 10%;
+        }
+        
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            bottom: -50px;
+            left: 10%;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 15px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 105, 198, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .forgot-password {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .register-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .register-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .error-message i {
+            font-size: 16px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            cursor: pointer;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .login-container {
+                margin: 0 20px;
+                padding: 30px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="container">
+        <nav>
+            <a href="{% url 'payments:home' %}" class="logo">
+                <span class="logo-icon"></span>
+                HamsukyPay
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">Welcome back!</h1>
+                <p class="login-subtitle">Log in to your merchant account</p>
+            </div>
+            
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+            
+            <form method="post" action="{% url 'payments:merchant_login' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <label class="remember-me">
+                    <input type="checkbox" name="remember_me"> Remember me for 30 days
+                </label>
+                
+                <button type="submit" class="btn btn-primary">Log In</button>
+                
+                <a href="{% url 'password_reset' %}" class="forgot-password">Forgot your password?</a>
+            </form>
+            
+            <div class="login-footer">
+                <p>Don't have an account? <a href="{% url 'payments:merchant_register' %}" class="register-link">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="{% url 'payments:home' %}">Home</a></li>
+                    <li><a href="{% url 'payments:merchant_api_docs' %}">API Docs</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+                
+                <p class="copyright">&copy; 2025 HamsukyPay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

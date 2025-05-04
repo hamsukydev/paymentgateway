@@ -1,0 +1,724 @@
+{% extends 'admin_custom/base.html' %}
+{% load payment_filters %}
+
+{% block title %}Settings - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+{% block page_subtitle %}Configure system settings and preferences{% endblock %}
+
+{% block styles %}
+<style>
+    .settings-card {
+        border-radius: 0.75rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .settings-section {
+        margin-bottom: 2rem;
+    }
+    
+    .settings-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .settings-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+    }
+    
+    .settings-system {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+    }
+    
+    .settings-security {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+    
+    .settings-notifications {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+    
+    .settings-integrations {
+        background-color: rgba(14, 173, 105, 0.1);
+        color: var(--success);
+    }
+    
+    .settings-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .settings-section-description {
+        color: var(--gray);
+        font-size: 0.875rem;
+    }
+    
+    .form-section {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: var(--box-shadow);
+        padding: 1.5rem;
+    }
+    
+    .form-section-header {
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+    
+    .form-info-text {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-top: 1rem;
+    }
+    
+    .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .setting-row:last-child {
+        border-bottom: none;
+    }
+    
+    .setting-label {
+        font-weight: 500;
+        color: var(--dark);
+    }
+    
+    .setting-description {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-top: 0.25rem;
+    }
+
+    .activity-log {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        display: flex;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        font-size: 1rem;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 500;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .activity-meta {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+
+    .api-key-section {
+        position: relative;
+        background-color: rgba(243, 244, 246, 0.5);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .api-key-value {
+        font-family: monospace;
+        font-size: 0.875rem;
+        background-color: rgba(243, 244, 246, 0.8);
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--border-color);
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .api-key-actions {
+        margin-top: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- System Settings Section -->
+<div class="settings-section">
+    <div class="settings-header">
+        <div class="settings-header-icon settings-system">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <div>
+            <div class="settings-section-title">System Settings</div>
+            <div class="settings-section-description">Configure core system settings and behavior</div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-section-header">
+            <h6 class="form-section-title">General Configuration</h6>
+        </div>
+        
+        <form method="post" action="{% url 'payments:admin_settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="system">
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="maintenance_mode">Maintenance Mode</label>
+                    <p class="setting-description">When enabled, the system will show a maintenance page to users</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" {% if settings.system.maintenance_mode %}checked{% endif %}>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="test_mode">Test Mode</label>
+                    <p class="setting-description">Run the system in test mode with simulated transactions</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="test_mode" name="test_mode" {% if settings.system.test_mode %}checked{% endif %}>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="webhook_timeout">Webhook Timeout (seconds)</label>
+                    <p class="setting-description">Maximum time to wait for webhook responses</p>
+                </div>
+                <div style="width: 100px;">
+                    <input type="number" class="form-control" id="webhook_timeout" name="webhook_timeout" value="{{ settings.system.webhook_timeout }}" min="5" max="60">
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="max_transaction_amount">Maximum Transaction Amount</label>
+                    <p class="setting-description">Upper limit for transaction amounts</p>
+                </div>
+                <div style="width: 200px;">
+                    <input type="number" class="form-control" id="max_transaction_amount" name="max_transaction_amount" value="{{ settings.system.max_transaction_amount }}">
+                </div>
+            </div>
+            
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-primary">Save System Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Security Settings Section -->
+<div class="settings-section">
+    <div class="settings-header">
+        <div class="settings-header-icon settings-security">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div>
+            <div class="settings-section-title">Security Settings</div>
+            <div class="settings-section-description">Configure security options and authentication settings</div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-section-header">
+            <h6 class="form-section-title">Authentication & Access Control</h6>
+        </div>
+        
+        <form method="post" action="{% url 'payments:admin_settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="security">
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="login_attempts">Maximum Login Attempts</label>
+                    <p class="setting-description">Number of failed login attempts before account lockout</p>
+                </div>
+                <div style="width: 100px;">
+                    <input type="number" class="form-control" id="login_attempts" name="login_attempts" value="{{ settings.security.login_attempts }}" min="1" max="10">
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="session_timeout">Session Timeout (minutes)</label>
+                    <p class="setting-description">Time before inactive users are automatically logged out</p>
+                </div>
+                <div style="width: 100px;">
+                    <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="{{ settings.security.session_timeout }}" min="5" max="120">
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="require_2fa">Require 2FA for Admin Users</label>
+                    <p class="setting-description">Enforce two-factor authentication for all admin users</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="require_2fa" name="require_2fa" {% if settings.security.require_2fa %}checked{% endif %}>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-primary">Save Security Settings</button>
+            </div>
+        </form>
+        
+        <div class="mt-4 pt-3 border-top">
+            <h6 class="form-section-title mb-3">API Keys</h6>
+            
+            <div class="api-key-section">
+                <div class="mb-2">
+                    <strong>Public API Key</strong>
+                    <span class="badge bg-success ms-2">Active</span>
+                </div>
+                <div class="api-key-value">pk_admin_{{ request.user.id|stringformat:"s" }}_{{ request.user.date_joined|date:"YmdHi" }}</div>
+                <div class="api-key-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('pk_admin_{{ request.user.id|stringformat:"s" }}_{{ request.user.date_joined|date:"YmdHi" }}')">
+                        <i class="fas fa-copy me-1"></i> Copy
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#regenerateKeyModal" data-key-type="public">
+                        <i class="fas fa-sync me-1"></i> Regenerate
+                    </button>
+                </div>
+            </div>
+            
+            <div class="api-key-section">
+                <div class="mb-2">
+                    <strong>Secret API Key</strong>
+                    <span class="badge bg-success ms-2">Active</span>
+                </div>
+                <div class="api-key-value">••••••••••••••••••••••••</div>
+                <div class="api-key-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#revealSecretModal">
+                        <i class="fas fa-eye me-1"></i> Reveal
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#regenerateKeyModal" data-key-type="secret">
+                        <i class="fas fa-sync me-1"></i> Regenerate
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-info-text">
+                <i class="fas fa-info-circle me-1"></i> Regenerating API keys will invalidate the existing keys. Make sure to update any integrations using these keys.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Settings Section -->
+<div class="settings-section">
+    <div class="settings-header">
+        <div class="settings-header-icon settings-notifications">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div>
+            <div class="settings-section-title">Notification Settings</div>
+            <div class="settings-section-description">Configure alerts, notifications and email settings</div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-section-header">
+            <h6 class="form-section-title">Alert Configuration</h6>
+        </div>
+        
+        <form method="post" action="{% url 'payments:admin_settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="notifications">
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="email_alerts">Email Alerts</label>
+                    <p class="setting-description">Receive important system alerts via email</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="email_alerts" name="email_alerts" {% if settings.notifications.email_alerts %}checked{% endif %}>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="sms_alerts">SMS Alerts</label>
+                    <p class="setting-description">Receive critical alerts via SMS</p>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="sms_alerts" name="sms_alerts" {% if settings.notifications.sms_alerts %}checked{% endif %}>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <div>
+                    <label class="setting-label" for="high_value_threshold">High Value Transaction Threshold</label>
+                    <p class="setting-description">Receive alerts for transactions above this amount</p>
+                </div>
+                <div style="width: 200px;">
+                    <input type="number" class="form-control" id="high_value_threshold" name="high_value_threshold" value="{{ settings.notifications.high_value_threshold }}">
+                </div>
+            </div>
+            
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Integration Settings Section -->
+<div class="settings-section">
+    <div class="settings-header">
+        <div class="settings-header-icon settings-integrations">
+            <i class="fas fa-plug"></i>
+        </div>
+        <div>
+            <div class="settings-section-title">Integration Settings</div>
+            <div class="settings-section-description">Configure third-party services and payment providers</div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-section-header">
+            <h6 class="form-section-title">Payment Providers</h6>
+        </div>
+        
+        <div class="nav nav-tabs" id="providersTab" role="tablist">
+            <button class="nav-link active" id="paystack-tab" data-bs-toggle="tab" data-bs-target="#paystack" type="button" role="tab" aria-controls="paystack" aria-selected="true">Paystack</button>
+            <button class="nav-link" id="flutterwave-tab" data-bs-toggle="tab" data-bs-target="#flutterwave" type="button" role="tab" aria-controls="flutterwave" aria-selected="false">Flutterwave</button>
+            <button class="nav-link" id="momo-tab" data-bs-toggle="tab" data-bs-target="#momo" type="button" role="tab" aria-controls="momo" aria-selected="false">Mobile Money</button>
+            <button class="nav-link" id="offline-tab" data-bs-toggle="tab" data-bs-target="#offline" type="button" role="tab" aria-controls="offline" aria-selected="false">Offline Payments</button>
+        </div>
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="providersTabContent">
+            <div class="tab-pane fade show active" id="paystack" role="tabpanel" aria-labelledby="paystack-tab">
+                <form method="post" action="{% url 'payments:admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="section" value="paystack">
+                    
+                    <div class="mb-3">
+                        <label for="paystack_secret_key" class="form-label">Secret Key</label>
+                        <input type="password" class="form-control" id="paystack_secret_key" name="paystack_secret_key" placeholder="sk_test_...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="paystack_public_key" class="form-label">Public Key</label>
+                        <input type="text" class="form-control" id="paystack_public_key" name="paystack_public_key" placeholder="pk_test_...">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="paystack_enabled" name="paystack_enabled">
+                        <label class="form-check-label" for="paystack_enabled">Enable Paystack</label>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save Paystack Settings</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="flutterwave" role="tabpanel" aria-labelledby="flutterwave-tab">
+                <form method="post" action="{% url 'payments:admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="section" value="flutterwave">
+                    
+                    <div class="mb-3">
+                        <label for="flutterwave_secret_key" class="form-label">Secret Key</label>
+                        <input type="password" class="form-control" id="flutterwave_secret_key" name="flutterwave_secret_key">
+                    </div>
+                    <div class="mb-3">
+                        <label for="flutterwave_public_key" class="form-label">Public Key</label>
+                        <input type="text" class="form-control" id="flutterwave_public_key" name="flutterwave_public_key">
+                    </div>
+                    <div class="mb-3">
+                        <label for="flutterwave_encryption_key" class="form-label">Encryption Key</label>
+                        <input type="password" class="form-control" id="flutterwave_encryption_key" name="flutterwave_encryption_key">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="flutterwave_enabled" name="flutterwave_enabled">
+                        <label class="form-check-label" for="flutterwave_enabled">Enable Flutterwave</label>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save Flutterwave Settings</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="momo" role="tabpanel" aria-labelledby="momo-tab">
+                <form method="post" action="{% url 'payments:admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="section" value="momo">
+                    
+                    <div class="mb-3">
+                        <label for="mtn_api_key" class="form-label">MTN API Key</label>
+                        <input type="password" class="form-control" id="mtn_api_key" name="mtn_api_key">
+                    </div>
+                    <div class="mb-3">
+                        <label for="airtel_api_key" class="form-label">Airtel API Key</label>
+                        <input type="password" class="form-control" id="airtel_api_key" name="airtel_api_key">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="momo_enabled" name="momo_enabled">
+                        <label class="form-check-label" for="momo_enabled">Enable Mobile Money</label>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save Mobile Money Settings</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="offline" role="tabpanel" aria-labelledby="offline-tab">
+                <form method="post" action="{% url 'payments:admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="section" value="offline">
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="bank_transfer_enabled" name="bank_transfer_enabled">
+                        <label class="form-check-label" for="bank_transfer_enabled">Enable Bank Transfer</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bank_name" class="form-label">Bank Name</label>
+                        <input type="text" class="form-control" id="bank_name" name="bank_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="account_number" class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="account_number" name="account_number">
+                    </div>
+                    <div class="mb-3">
+                        <label for="account_name" class="form-label">Account Name</label>
+                        <input type="text" class="form-control" id="account_name" name="account_name">
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save Offline Payment Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Logs -->
+<div class="settings-section">
+    <div class="settings-header">
+        <div class="settings-header-icon" style="background-color: rgba(107, 114, 128, 0.1); color: var(--gray);">
+            <i class="fas fa-history"></i>
+        </div>
+        <div>
+            <div class="settings-section-title">System Activity Logs</div>
+            <div class="settings-section-description">Recent system configuration changes</div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="activity-log">
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: rgba(59, 130, 246, 0.1); color: var(--info);">
+                    <i class="fas fa-wrench"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">System settings updated</div>
+                    <div class="activity-meta">
+                        <span>By Admin (admin@example.com)</span>
+                        <span>•</span>
+                        <span>May 03, 2025 at 10:15 AM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">API keys regenerated</div>
+                    <div class="activity-meta">
+                        <span>By Admin (admin@example.com)</span>
+                        <span>•</span>
+                        <span>May 02, 2025 at 2:30 PM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: rgba(14, 173, 105, 0.1); color: var(--success);">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Paystack integration enabled</div>
+                    <div class="activity-meta">
+                        <span>By Admin (admin@example.com)</span>
+                        <span>•</span>
+                        <span>May 01, 2025 at 9:45 AM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Security settings modified</div>
+                    <div class="activity-meta">
+                        <span>By Admin (admin@example.com)</span>
+                        <span>•</span>
+                        <span>April 28, 2025 at 11:20 AM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: rgba(59, 130, 246, 0.1); color: var(--info);">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Notification settings updated</div>
+                    <div class="activity-meta">
+                        <span>By Admin (admin@example.com)</span>
+                        <span>•</span>
+                        <span>April 25, 2025 at 3:10 PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reveal Secret Key Modal -->
+<div class="modal fade" id="revealSecretModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reveal Secret Key</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>For security reasons, please confirm your password to reveal the secret API key:</p>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Admin Password</label>
+                    <input type="password" class="form-control" id="confirmPassword">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="revealSecretBtn">Reveal Secret Key</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Regenerate API Key Modal -->
+<div class="modal fade" id="regenerateKeyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Regenerate API Key</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> Regenerating this key will invalidate the existing key. Any services using this key will need to be updated.
+                </div>
+                <p>Are you sure you want to regenerate this API key?</p>
+                <div class="mb-3">
+                    <label for="regeneratePassword" class="form-label">Admin Password</label>
+                    <input type="password" class="form-control" id="regeneratePassword">
+                </div>
+                <input type="hidden" id="keyTypeToRegenerate" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="regenerateKeyBtn">Regenerate Key</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Copy API key to clipboard
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    // Show a toast or some indication that it was copied
+                    alert("API key copied to clipboard");
+                })
+                .catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+        };
+        
+        // Handle revealing secret key
+        document.getElementById('revealSecretBtn').addEventListener('click', function() {
+            const password = document.getElementById('confirmPassword').value;
+            if (!password) {
+                alert("Please enter your password");
+                return;
+            }
+            
+            // In production, this would make an API call to verify the password
+            // and then reveal the secret key
+            alert("Secret key would be revealed here after password verification");
+            $('#revealSecretModal').modal('hide');
+        });
+        
+        // Handle regenerating API key
+        document.getElementById('regenerateKeyModal').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const keyType = button.getAttribute('data-key-type');
+            document.getElementById('keyTypeToRegenerate').value = keyType;
+        });
+        
+        document.getElementById('regenerateKeyBtn').addEventListener('click', function() {
+            const password = document.getElementById('regeneratePassword').value;
+            const keyType = document.getElementById('keyTypeToRegenerate').value;
+            
+            if (!password) {
+                alert("Please enter your password");
+                return;
+            }
+            
+            // In production, this would make an API call to verify the password
+            // and regenerate the specified API key
+            alert(`${keyType} API key would be regenerated here after password verification`);
+            $('#regenerateKeyModal').modal('hide');
+        });
+    });
+</script>
+{% endblock %}

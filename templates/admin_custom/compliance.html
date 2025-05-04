@@ -1,0 +1,381 @@
+{% extends 'admin_custom/base.html' %}
+{% load payment_filters %}
+
+{% block title %}Compliance & Risk - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}Compliance & Risk{% endblock %}
+{% block page_subtitle %}Monitor and manage compliance and risk factors{% endblock %}
+
+{% block styles %}
+<style>
+    .compliance-card {
+        border-radius: 0.75rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .compliance-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-md);
+    }
+    
+    .risk-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .risk-low {
+        background-color: rgba(14, 173, 105, 0.1);
+        color: var(--success);
+    }
+    
+    .risk-medium {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+    
+    .risk-high {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .risk-score-indicator {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+    }
+
+    .risk-score-bar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 8px;
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+
+    .risk-score-text {
+        margin-top: 0.5rem;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .log-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .log-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .log-item:last-child {
+        border-bottom: none;
+    }
+
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .log-title {
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .log-entity {
+        font-size: 0.85rem;
+        color: var(--primary);
+    }
+
+    .log-details {
+        background-color: var(--gray-light);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .entity-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .entity-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Risk Dashboard -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card compliance-card">
+            <div class="card-body">
+                <h6 class="card-title d-flex justify-content-between">
+                    <span>Flagged Transactions</span>
+                    <span class="badge bg-warning">{{ flagged_transactions|length }}</span>
+                </h6>
+                <p class="card-text text-muted">Transactions that require review</p>
+                <div class="mt-3">
+                    <a href="{% url 'payments:admin_transactions' %}?compliance_status=review" class="btn btn-sm btn-primary">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card compliance-card">
+            <div class="card-body">
+                <h6 class="card-title d-flex justify-content-between">
+                    <span>High-Risk Merchants</span>
+                    <span class="badge bg-danger">{{ high_risk_merchants|length }}</span>
+                </h6>
+                <p class="card-text text-muted">Merchants requiring enhanced due diligence</p>
+                <div class="mt-3">
+                    <a href="{% url 'payments:admin_merchants' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card compliance-card">
+            <div class="card-body">
+                <h6 class="card-title d-flex justify-content-between">
+                    <span>Compliance Logs</span>
+                    <span class="badge bg-info">{{ compliance_logs|length }}</span>
+                </h6>
+                <p class="card-text text-muted">Recent compliance checks and audits</p>
+                <div class="mt-3">
+                    <a href="#compliance-logs" class="btn btn-sm btn-primary">View Logs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flagged Transactions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="card-header-title">Flagged Transactions</h6>
+        <div class="card-header-actions">
+            <a href="{% url 'payments:admin_transactions' %}?compliance_status=review" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Email</th>
+                        <th>Amount</th>
+                        <th>Risk Score</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in flagged_transactions %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'payments:admin_transaction_detail' transaction.reference %}" class="entity-link">
+                                {{ transaction.reference }}
+                            </a>
+                        </td>
+                        <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ transaction.email }}</td>
+                        <td>{{ transaction.currency }} {{ transaction.amount|floatformat:2 }}</td>
+                        <td>
+                            {% if transaction.risk_score %}
+                                <div class="risk-score-indicator">
+                                    <div class="risk-score-bar 
+                                        {% if transaction.risk_score < 30 %}bg-success
+                                        {% elif transaction.risk_score < 70 %}bg-warning
+                                        {% else %}bg-danger{% endif %}"
+                                        style="width: {{ transaction.risk_score }}%;">
+                                    </div>
+                                </div>
+                                <div class="risk-score-text 
+                                    {% if transaction.risk_score < 30 %}text-success
+                                    {% elif transaction.risk_score < 70 %}text-warning
+                                    {% else %}text-danger{% endif %}">
+                                    {{ transaction.risk_score }}%
+                                </div>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.compliance_status == 'review' %}
+                                <span class="status-badge status-badge-warning">Review</span>
+                            {% elif transaction.compliance_status == 'rejected' %}
+                                <span class="status-badge status-badge-danger">Rejected</span>
+                            {% elif transaction.compliance_status == 'approved' %}
+                                <span class="status-badge status-badge-success">Approved</span>
+                            {% else %}
+                                <span class="status-badge status-badge-secondary">{{ transaction.compliance_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'payments:admin_transaction_detail' transaction.reference %}" class="btn btn-sm btn-outline-primary">Review</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">No flagged transactions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- High Risk Merchants -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="card-header-title">High-Risk Merchants</h6>
+        <div class="card-header-actions">
+            <a href="{% url 'payments:admin_merchants' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Business Name</th>
+                        <th>Business Type</th>
+                        <th>Country</th>
+                        <th>Registration Date</th>
+                        <th>Enhanced Due Diligence</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for merchant in high_risk_merchants %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'payments:admin_merchant_detail' merchant.id %}" class="entity-link">
+                                {{ merchant.business_name }}
+                            </a>
+                        </td>
+                        <td>{{ merchant.business_type }}</td>
+                        <td>{{ merchant.country }}</td>
+                        <td>{{ merchant.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if merchant.compliance_info.enhanced_due_diligence_complete %}
+                                <span class="status-badge status-badge-success">Complete</span>
+                            {% else %}
+                                <span class="status-badge status-badge-warning">Required</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'payments:admin_merchant_detail' merchant.id %}" class="btn btn-sm btn-outline-primary">Review</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">No high-risk merchants found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Compliance Logs -->
+<div class="card mb-4" id="compliance-logs">
+    <div class="card-header">
+        <h6 class="card-header-title">Compliance Logs</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="log-list">
+            {% for log in compliance_logs %}
+                <div class="log-item">
+                    <div class="log-header">
+                        <div>
+                            <span class="log-title">{{ log.check_type|title }} Check</span>
+                            {% if log.is_compliant %}
+                                <span class="status-badge status-badge-success">Pass</span>
+                            {% else %}
+                                <span class="status-badge status-badge-danger">Fail</span>
+                            {% endif %}
+                        </div>
+                        <div class="log-entity">
+                            {% if log.transaction %}
+                                <a href="{% url 'payments:admin_transaction_detail' log.transaction.reference %}" class="entity-link">
+                                    Transaction: {{ log.transaction.reference }}
+                                </a>
+                            {% elif log.merchant %}
+                                <a href="{% url 'payments:admin_merchant_detail' log.merchant.id %}" class="entity-link">
+                                    Merchant: {{ log.merchant.business_name }}
+                                </a>
+                            {% elif log.customer %}
+                                <a href="{% url 'payments:admin_customer_detail' log.customer.id %}" class="entity-link">
+                                    Customer: {{ log.customer.email }}
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small">{{ log.created_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Risk Score</span>
+                        <div class="risk-badge {% if log.risk_score < 30 %}risk-low{% elif log.risk_score < 70 %}risk-medium{% else %}risk-high{% endif %}">
+                            {{ log.risk_score }}%
+                        </div>
+                    </div>
+                    
+                    {% if log.get_details %}
+                        <div class="log-details">
+                            <pre class="mb-0">{{ log.details }}</pre>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="text-center py-5">
+                    <div class="mb-3 text-muted">
+                        <i class="fas fa-clipboard-check fa-3x"></i>
+                    </div>
+                    <p class="text-muted mb-0">No compliance logs found</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

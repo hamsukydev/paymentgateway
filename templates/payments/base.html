@@ -1,0 +1,423 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HamsukyPay - Modern Payment Gateway{% endblock %}</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logo img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--dark-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .dropdown-toggle i {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown:hover .dropdown-toggle i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 1000;
+            list-style: none;
+            padding: 8px 0;
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu li {
+            padding: 0;
+        }
+        
+        .dropdown-menu a {
+            padding: 10px 20px;
+            display: block;
+            font-weight: 400;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: rgba(52, 105, 198, 0.08);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(52, 105, 198, 0.08);
+        }
+        
+        .page-header {
+            text-align: center;
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to right bottom, rgba(52, 105, 198, 0.05), rgba(0, 194, 168, 0.05));
+        }
+        
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .footer-logo {
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .footer-logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .page-header h1 {
+                font-size: 36px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .page-header h1 {
+                font-size: 32px;
+            }
+        }
+
+        /* Custom styles for specific blocks */
+    </style>
+    {% block extra_css %}{% endblock %}
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="container">
+        <nav>
+            <a href="{% url 'payments:home' %}" class="logo">
+                <img src="{% static 'img/logo.png' %}" alt="HamsukyPay Logo">
+                HamsukyPay
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="{% url 'payments:home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
+                <li><a href="{% url 'payments:solutions' %}" {% if request.resolver_match.url_name == 'solutions' %}class="active"{% endif %}>Solutions</a></li>
+                <li><a href="{% url 'payments:pricing' %}" {% if request.resolver_match.url_name == 'pricing' %}class="active"{% endif %}>Pricing</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle {% if request.resolver_match.url_name == 'merchant_api_docs' or request.resolver_match.url_name == 'integration_overview' %}active{% endif %}">Developers <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'payments:integration_overview' %}">Integration Overview</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">API Documentation</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}#sdks">SDKs & Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <div class="nav-buttons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'payments:merchant_dashboard' %}" class="btn btn-outline">Dashboard</a>
+                {% else %}
+                    <a href="{% url 'payments:merchant_login' %}" class="btn btn-outline">Log in</a>
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Create Account</a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+    
+    {% block content %}
+    <!-- Content will be inserted here by templates that extend this base template -->
+    {% endblock %}
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <a href="{% url 'payments:home' %}" class="footer-logo">
+                        <img src="{% static 'img/logo.png' %}" alt="HamsukyPay Logo">
+                    </a>
+                    <p>A powerful payment gateway that helps businesses accept payments from anyone, anywhere.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">Payments</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Invoicing</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Subscriptions</a></li>
+                        <li><a href="#" onclick="alert('Please enter a reference to view checkout page')">Checkout</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Solutions</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:solutions' %}#ecommerce">Ecommerce</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#marketplaces">Marketplaces</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#mobile-apps">Mobile Apps</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#educational">Educational Institutions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Developers</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Documentation</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">API Reference</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">SDKs & Libraries</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Developer Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">About Us</a></li>
+                        <li><a href="{% url 'payments:home' %}">Careers</a></li>
+                        <li><a href="{% url 'payments:home' %}">Blog</a></li>
+                        <li><a href="{% url 'payments:merchant_settings' %}">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 HamsukyPay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}
+    <!-- Scripts will be inserted here by templates that extend this base template -->
+    {% endblock %}
+</body>
+</html>

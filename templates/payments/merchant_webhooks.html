@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhooks - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            padding: 10px 24px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        .menu-items {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin-bottom: 5px;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background-color: rgba(52, 105, 198, 0.04);
+            color: var(--primary-color);
+        }
+        
+        .menu-link.active {
+            background-color: rgba(52, 105, 198, 0.08);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .menu-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .user-menu-toggle {
+            color: var(--text-color);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-menu-toggle:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Introduction Card */
+        .intro-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .intro-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 12px;
+        }
+        
+        .intro-text {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 16px;
+        }
+        
+        /* Webhooks Table */
+        .webhooks-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .webhooks-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .webhooks-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .webhooks-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .webhook-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .webhooks-search {
+            position: relative;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .webhooks-search input {
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            width: 250px;
+        }
+        
+        .webhooks-search input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .webhooks-table-container {
+            overflow-x: auto;
+        }
+        
+        .webhooks-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .webhooks-table th {
+            text-align: left;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .webhooks-table td {
+            padding: 16px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .webhooks-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .webhook-url {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .webhook-date {
+            color: var(--text-muted);
+        }
+        
+        .success-rate {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .progress-bar-container {
+            width: 80px;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 4px;
+        }
+        
+        .progress-bar.warning {
+            background-color: var(--warning-color);
+        }
+        
+        .progress-bar.danger {
+            background-color: var(--danger-color);
+        }
+        
+        .webhook-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-muted);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        .action-btn.danger:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 36px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-message {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            max-width: 400px;
+        }
+        
+        /* Add Webhook Form */
+        .add-webhook-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            padding: 24px;
+            display: none;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .close-form {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+        
+        .close-form:hover {
+            background-color: var(--border-color);
+            color: var(--dark-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: white;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .form-help {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Event types section */
+        .event-types-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            padding: 24px;
+        }
+        
+        .event-types-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 16px;
+        }
+        
+        .event-types-description {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 24px;
+        }
+        
+        .event-type-card {
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+        
+        .event-type-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .event-type-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .event-type-code {
+            margin-left: auto;
+            padding: 4px 8px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        
+        .event-type-description {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        /* Webhook logs section */
+        .logs-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .logs-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logs-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .logs-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        
+        .log-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .log-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .log-status.success {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success-color);
+        }
+        
+        .log-status.failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .log-content {
+            flex: 1;
+        }
+        
+        .log-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+        }
+        
+        .log-message {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .log-details {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .log-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .log-event {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Documentation section */
+        .docs-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            padding: 24px;
+        }
+        
+        .docs-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 16px;
+        }
+        
+        .docs-description {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 24px;
+        }
+        
+        .code-example {
+            background-color: var(--dark-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        
+        .code-example pre {
+            margin: 0;
+            font-family: monospace;
+            color: white;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-example code .str {
+            color: #9ccc65;
+        }
+        
+        .code-example code .kwd {
+            color: #64b5f6;
+        }
+        
+        .code-example code .pun {
+            color: #e0e0e0;
+        }
+        
+        .code-example code .com {
+            color: #78909c;
+        }
+        
+        .docs-section {
+            margin-bottom: 24px;
+        }
+        
+        .docs-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 12px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--light-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        /* Responsive */
+        .sidebar-toggle {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 20px;
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .webhook-url {
+                max-width: 200px;
+            }
+            
+            .progress-bar-container {
+                width: 60px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle.active {
+                left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle:not(.active) {
+                left: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .webhooks-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .webhooks-actions {
+                width: 100%;
+            }
+            
+            .webhooks-search {
+                width: 100%;
+            }
+            
+            .webhooks-search input {
+                width: 100%;
+            }
+            
+            .webhooks-table {
+                min-width: 800px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark-color);
+        }
+        
+        .modal-body {
+            margin-bottom: 24px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Log detail view */
+        .log-details-container {
+            margin-top: 16px;
+        }
+        
+        .details-item {
+            margin-bottom: 12px;
+        }
+        
+        .details-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .details-value {
+            font-size: 14px;
+            color: var(--text-color);
+            padding: 8px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            word-break: break-all;
+        }
+        
+        .details-value.code {
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"></span>
+                    HamsukyPay
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Main</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_dashboard' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-th-large"></i></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_analytics' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_transactions' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-exchange-alt"></i></span>
+                                Transactions
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_customers' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                                Customers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Payments</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payment_links' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-link"></i></span>
+                                Payment Links
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_invoices' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-receipt"></i></span>
+                                Invoices
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payouts' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-money-check-alt"></i></span>
+                                Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Developer</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-code"></i></span>
+                                API Keys
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-book"></i></span>
+                                Documentation
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_webhooks' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-plug"></i></span>
+                                Webhooks
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Account</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_settings' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                                Settings
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-life-ring"></i></span>
+                                Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ merchant.business_name|slice:":1" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ merchant.business_name }}</div>
+                        <div class="user-role">Verified Merchant</div>
+                    </div>
+                    <div class="user-menu-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar toggle -->
+        <div class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Webhooks</h1>
+                
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-icon" id="btnCreateWebhook">
+                        <i class="fas fa-plus"></i> Add Webhook
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Introduction Card -->
+            <div class="intro-card">
+                <h2 class="intro-title">What are webhooks?</h2>
+                <p class="intro-text">Webhooks allow your application to receive real-time notifications when events occur in your HamsukyPay account. When an event happens, we'll send a HTTP POST request to the URL you configure with details about the event.</p>
+                <p class="intro-text">Common use cases include: Getting notified when a payment succeeds or fails, synchronizing customer data with your systems, triggering fulfillment processes after successful payments, and updating your application's UI in real-time.</p>
+            </div>
+            
+            <!-- Add Webhook Form -->
+            <div class="add-webhook-card" id="webhookForm">
+                <div class="form-header">
+                    <h2 class="form-title">Add New Webhook</h2>
+                    <span class="close-form" id="btnCloseForm">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+                
+                <form>
+                    <div class="form-group">
+                        <label for="endpointUrl" class="form-label">Endpoint URL</label>
+                        <input type="url" id="endpointUrl" class="form-input" placeholder="https://example.com/webhooks/hamsukypay" required>
+                        <div class="form-help">This is the URL where we'll send webhook events. It must be a public https URL.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <select id="eventType" class="form-select" required>
+                            <option value="" disabled selected>Select an event type</option>
+                            {% for event in event_types %}
+                            <option value="{{ event.code }}">{{ event.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-help">Choose which event type will trigger this webhook.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description" class="form-label">Description (optional)</label>
+                        <input type="text" id="description" class="form-input" placeholder="Payment notification for CRM system">
+                        <div class="form-help">Add a description to help you identify this webhook.</div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="btnCancelWebhook">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Webhook</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Webhooks Table -->
+            <div class="webhooks-container">
+                <div class="webhooks-header">
+                    <h3 class="webhooks-title">Your Webhooks</h3>
+                    
+                    <div class="webhooks-actions">
+                        <div class="webhooks-search">
+                            <span class="search-icon">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" placeholder="Search webhooks..." id="webhookSearch">
+                        </div>
+                    </div>
+                </div>
+                
+                {% if webhooks %}
+                <div class="webhooks-table-container">
+                    <table class="webhooks-table">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>Event Type</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Last Triggered</th>
+                                <th>Success Rate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for webhook in webhooks %}
+                            <tr>
+                                <td>
+                                    <div class="webhook-url" title="{{ webhook.url }}">{{ webhook.url }}</div>
+                                </td>
+                                <td>{{ webhook.event_type }}</td>
+                                <td>
+                                    <span class="webhook-status status-{{ webhook.status }}">{{ webhook.status|title }}</span>
+                                </td>
+                                <td class="webhook-date">{{ webhook.created_at|date:"j M Y" }}</td>
+                                <td class="webhook-date">
+                                    {% if webhook.last_triggered %}
+                                    {{ webhook.last_triggered|date:"j M Y, g:i A" }}
+                                    {% else %}
+                                    --
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="success-rate">
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar {% if webhook.success_rate < 50 %}danger{% elif webhook.success_rate < 80 %}warning{% endif %}" style="width: {{ webhook.success_rate }}%"></div>
+                                        </div>
+                                        <span>{{ webhook.success_rate }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="webhook-actions">
+                                        <button class="action-btn" title="View Logs" onclick="viewLogs('{{ webhook.id }}')">
+                                            <i class="fas fa-history"></i>
+                                        </button>
+                                        <button class="action-btn" title="Test Webhook" onclick="testWebhook('{{ webhook.id }}')">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                        <button class="action-btn" title="Edit" onclick="editWebhook('{{ webhook.id }}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn danger" title="Delete" onclick="deleteWebhook('{{ webhook.id }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3 class="empty-state-title">No webhooks configured</h3>
+                    <p class="empty-state-message">Configure webhooks to receive real-time notifications when events occur in your HamsukyPay account.</p>
+                    <button class="btn btn-primary btn-icon" id="btnCreateWebhookEmpty">
+                        <i class="fas fa-plus"></i> Add Your First Webhook
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Event Types Section -->
+            <div class="event-types-container">
+                <h2 class="event-types-title">Available Event Types</h2>
+                <p class="event-types-description">These are the events you can subscribe to with webhooks. Each event contains relevant data about the resource that triggered it.</p>
+                
+                {% for event in event_types %}
+                <div class="event-type-card">
+                    <div class="event-type-header">
+                        <h3 class="event-type-name">{{ event.name }}</h3>
+                        <div class="event-type-code">{{ event.code }}</div>
+                    </div>
+                    <p class="event-type-description">{{ event.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Documentation Section -->
+            <div class="docs-container">
+                <h2 class="docs-title">Implementation Guide</h2>
+                <p class="docs-description">Follow these steps to implement webhook handling in your application:</p>
+                
+                <div class="docs-section">
+                    <h3 class="docs-section-title">1. Create an endpoint on your server</h3>
+                    <p class="intro-text">Set up an endpoint on your server that can receive POST requests from HamsukyPay. Here's an example in Node.js with Express:</p>
+                    
+                    <div class="code-example">
+                        <pre><code><span class="kwd">const</span> express = <span class="kwd">require</span>(<span class="str">'express'</span>);
+<span class="kwd">const</span> app = express();
+app.<span class="kwd">use</span>(express.json()); <span class="com">// Parse JSON request body</span>
+
+app.<span class="kwd">post</span>(<span class="str">'/webhook/payment'</span>, (req, res) => {
+  <span class="kwd">const</span> signature = req.headers[<span class="str">'x-hamsukypay-signature'</span>];
+  <span class="kwd">const</span> event = req.body;
+  
+  <span class="com">// Verify the signature to ensure the request is from HamsukyPay</span>
+  <span class="kwd">if</span> (!verifySignature(signature, JSON.stringify(req.body), YOUR_WEBHOOK_SECRET)) {
+    <span class="kwd">return</span> res.status(401).send(<span class="str">'Invalid signature'</span>);
+  }
+  
+  <span class="com">// Handle the event based on its type</span>
+  <span class="kwd">switch</span> (event.type) {
+    <span class="kwd">case</span> <span class="str">'payment.successful'</span>:
+      <span class="com">// Handle successful payment</span>
+      <span class="kwd">const</span> payment = event.data;
+      console.log(<span class="str">`Payment successful: ${payment.reference}`</span>);
+      <span class="kwd">break</span>;
+      
+    <span class="kwd">case</span> <span class="str">'payment.failed'</span>:
+      <span class="com">// Handle failed payment</span>
+      <span class="kwd">break</span>;
+      
+    <span class="com">// Handle other event types</span>
+  }
+  
+  <span class="com">// Always return a 200 response to acknowledge receipt of the webhook</span>
+  res.status(200).send(<span class="str">'Webhook received'</span>);
+});
+
+app.<span class="kwd">listen</span>(3000, () => {
+  console.log(<span class="str">'Server running on port 3000'</span>);
+});</code></pre>
+                    </div>
+                </div>
+                
+                <div class="docs-section">
+                    <h3 class="docs-section-title">2. Verify webhook signatures</h3>
+                    <p class="intro-text">Always verify the signature in the "x-hamsukypay-signature" header to ensure the webhook came from HamsukyPay:</p>
+                    
+                    <div class="code-example">
+                        <pre><code><span class="kwd">function</span> verifySignature(signature, payload, secret) {
+  <span class="kwd">const</span> crypto = <span class="kwd">require</span>(<span class="str">'crypto'</span>);
+  <span class="kwd">const</span> hmac = crypto.createHmac(<span class="str">'sha256'</span>, secret);
+  <span class="kwd">const</span> expectedSignature = hmac.update(payload).digest(<span class="str">'hex'</span>);
+  
+  <span class="kwd">return</span> crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="docs-section">
+                    <h3 class="docs-section-title">3. Implement idempotency</h3>
+                    <p class="intro-text">HamsukyPay may send the same webhook multiple times to ensure delivery. Implement idempotency by checking the event ID and ignoring duplicate events.</p>
+                </div>
+                
+                <div class="docs-section">
+                    <h3 class="docs-section-title">4. Respond quickly</h3>
+                    <p class="intro-text">Your webhook handler should respond with a 2xx status code as quickly as possible. If you need to perform time-consuming tasks, do them asynchronously after sending a response.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Delete Webhook Modal -->
+    <div id="deleteWebhookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Webhook</h2>
+                <span class="modal-close" id="closeDeleteModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this webhook? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Logs Modal -->
+    <div id="viewLogsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Webhook Delivery History</h2>
+                <span class="modal-close" id="closeLogsModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="logs-list" id="webhookLogsList">
+                    <div class="log-item">
+                        <div class="log-status success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="log-content">
+                            <div class="log-title">Webhook delivered successfully</div>
+                            <div class="log-message">Received 200 OK response in 245ms</div>
+                            <div class="log-details">
+                                <div class="log-time">
+                                    <i class="far fa-clock"></i> Today, 2:35 PM
+                                </div>
+                                <div class="log-event">
+                                    <i class="fas fa-tag"></i> payment.successful
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="log-item">
+                        <div class="log-status failed">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="log-content">
+                            <div class="log-title">Webhook delivery failed</div>
+                            <div class="log-message">Received 500 Internal Server Error response</div>
+                            <div class="log-details">
+                                <div class="log-time">
+                                    <i class="far fa-clock"></i> Yesterday, 11:20 AM
+                                </div>
+                                <div class="log-event">
+                                    <i class="fas fa-tag"></i> payment.failed
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeLogsBtn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarToggle.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-active');
+            
+            // Change icon
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Webhook form show/hide
+        const webhookForm = document.getElementById('webhookForm');
+        const btnCreateWebhook = document.getElementById('btnCreateWebhook');
+        const btnCreateWebhookEmpty = document.getElementById('btnCreateWebhookEmpty');
+        const btnCloseForm = document.getElementById('btnCloseForm');
+        const btnCancelWebhook = document.getElementById('btnCancelWebhook');
+        
+        function showWebhookForm() {
+            webhookForm.style.display = 'block';
+            document.getElementById('endpointUrl').focus();
+        }
+        
+        function hideWebhookForm() {
+            webhookForm.style.display = 'none';
+        }
+        
+        if (btnCreateWebhook) {
+            btnCreateWebhook.addEventListener('click', showWebhookForm);
+        }
+        
+        if (btnCreateWebhookEmpty) {
+            btnCreateWebhookEmpty.addEventListener('click', showWebhookForm);
+        }
+        
+        if (btnCloseForm) {
+            btnCloseForm.addEventListener('click', hideWebhookForm);
+        }
+        
+        if (btnCancelWebhook) {
+            btnCancelWebhook.addEventListener('click', hideWebhookForm);
+        }
+        
+        // Webhook search functionality
+        const webhookSearch = document.getElementById('webhookSearch');
+        if (webhookSearch) {
+            webhookSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.webhooks-table tbody tr');
+                
+                rows.forEach(row => {
+                    const url = row.querySelector('.webhook-url').textContent.toLowerCase();
+                    const eventType = row.cells[1].textContent.toLowerCase();
+                    
+                    const isMatch = url.includes(searchTerm) || eventType.includes(searchTerm);
+                    row.style.display = isMatch ? '' : 'none';
+                });
+            });
+        }
+        
+        // Delete webhook modal
+        const deleteModal = document.getElementById('deleteWebhookModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
+        let webhookToDelete = null;
+        
+        function deleteWebhook(webhookId) {
+            webhookToDelete = webhookId;
+            deleteModal.style.display = 'block';
+        }
+        
+        if (closeDeleteModal) {
+            closeDeleteModal.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+            });
+        }
+        
+        if (cancelDelete) {
+            cancelDelete.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+            });
+        }
+        
+        if (confirmDelete) {
+            confirmDelete.addEventListener('click', function() {
+                // In a real implementation, you would send a request to delete the webhook
+                console.log(`Deleting webhook: ${webhookToDelete}`);
+                deleteModal.style.display = 'none';
+                
+                // For demo purposes, just reload the page
+                setTimeout(() => {
+                    alert('Webhook deleted successfully!');
+                    window.location.reload();
+                }, 500);
+            });
+        }
+        
+        // View logs modal
+        const logsModal = document.getElementById('viewLogsModal');
+        const closeLogsModal = document.getElementById('closeLogsModal');
+        const closeLogsBtn = document.getElementById('closeLogsBtn');
+        
+        function viewLogs(webhookId) {
+            // In a real implementation, you would fetch logs for this webhook
+            console.log(`Viewing logs for webhook: ${webhookId}`);
+            logsModal.style.display = 'block';
+        }
+        
+        if (closeLogsModal) {
+            closeLogsModal.addEventListener('click', function() {
+                logsModal.style.display = 'none';
+            });
+        }
+        
+        if (closeLogsBtn) {
+            closeLogsBtn.addEventListener('click', function() {
+                logsModal.style.display = 'none';
+            });
+        }
+        
+        // Test webhook
+        function testWebhook(webhookId) {
+            // In a real implementation, you would send a request to test the webhook
+            console.log(`Testing webhook: ${webhookId}`);
+            alert(`Test event sent to webhook ${webhookId}. Check your endpoint for the test payload.`);
+        }
+        
+        // Edit webhook
+        function editWebhook(webhookId) {
+            // In a real implementation, you would populate the form with webhook data
+            console.log(`Editing webhook: ${webhookId}`);
+            showWebhookForm();
+            
+            // For demo purposes, we'll just populate with fake data
+            document.getElementById('endpointUrl').value = 'https://example.com/webhook/hamsukypay';
+            document.getElementById('eventType').value = 'payment.successful';
+            document.getElementById('description').value = 'Payment notification webhook';
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+            if (event.target === logsModal) {
+                logsModal.style.display = 'none';
+            }
+        };
+        
+        // Form submission
+        const webhookFormElement = webhookForm.querySelector('form');
+        if (webhookFormElement) {
+            webhookFormElement.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const url = document.getElementById('endpointUrl').value;
+                const eventType = document.getElementById('eventType').value;
+                const description = document.getElementById('description').value;
+                
+                // In a real implementation, you would send a request to create the webhook
+                console.log(`Creating webhook: ${url}, ${eventType}, ${description}`);
+                
+                // For demo purposes, just reload the page
+                alert('Webhook created successfully!');
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

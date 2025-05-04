@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solutions - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--dark-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(52, 105, 198, 0.08);
+        }
+        
+        /* Page header */
+        .page-header {
+            text-align: center;
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to right bottom, rgba(52, 105, 198, 0.05), rgba(0, 194, 168, 0.05));
+        }
+        
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Solutions Nav */
+        .solutions-nav {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 60px;
+        }
+        
+        .solutions-nav ul {
+            display: flex;
+            list-style: none;
+            overflow-x: auto;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .solutions-nav li {
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+        
+        .solutions-nav a {
+            display: block;
+            padding: 20px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .solutions-nav a:hover {
+            color: var(--primary-color);
+        }
+        
+        .solutions-nav a.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        /* Solution Section */
+        .solution-section {
+            padding: 80px 0;
+            position: relative;
+        }
+        
+        .solution-section:nth-child(even) {
+            background-color: white;
+        }
+        
+        .solution-container {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+        
+        .solution-image {
+            flex: 1;
+            max-width: 500px;
+        }
+        
+        .solution-image img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .solution-content {
+            flex: 1;
+        }
+        
+        .solution-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .solution-description {
+            margin-bottom: 30px;
+        }
+        
+        .solution-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .solution-features li {
+            margin-bottom: 15px;
+            padding-left: 28px;
+            position: relative;
+        }
+        
+        .solution-features li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--success-color);
+        }
+        
+        .solution-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .testimonial-bubble {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 40px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+        
+        .testimonial-bubble::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 30px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            transform: rotate(45deg);
+        }
+        
+        .testimonial-bubble p {
+            font-size: 16px;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f4f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .author-details h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+        
+        .author-details p {
+            font-size: 12px;
+            color: var(--text-color);
+            margin: 0;
+        }
+        
+        .reverse-layout .solution-container {
+            flex-direction: row-reverse;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 80px 0;
+            color: white;
+            text-align: center;
+            margin-top: 80px;
+        }
+        
+        .cta-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .cta-description {
+            font-size: 18px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+        }
+        
+        .btn-white {
+            background: white;
+            color: var(--primary-color);
+        }
+        
+        .btn-white:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .solution-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .reverse-layout .solution-container {
+                flex-direction: column;
+            }
+            
+            .solution-image {
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .page-header h1 {
+                font-size: 32px;
+            }
+            
+            .solutions-nav ul {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .solution-title {
+                font-size: 26px;
+            }
+            
+            .solution-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <span class="logo-icon"></span>
+                HamsukyPay
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="{% url 'payments:home' %}">Home</a></li>
+                <li><a href="{% url 'payments:solutions' %}">Solutions</a></li>
+                <li><a href="{% url 'payments:pricing' %}">Pricing</a></li>
+                <li><a href="{% url 'payments:merchant_api_docs' %}">Developers</a></li>
+            </ul>
+            
+            <div class="nav-buttons">
+                <a href="{% url 'payments:merchant_login' %}" class="btn btn-outline">Log in</a>
+                <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Create Account</a>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Solutions for Every Business</h1>
+            <p>HamsukyPay provides tailored payment solutions to meet the unique needs of different industries.</p>
+        </div>
+    </section>
+    
+    <!-- Solutions Navigation -->
+    <div class="container">
+        <div class="solutions-nav">
+            <ul>
+                <li><a href="#ecommerce" class="active">Ecommerce</a></li>
+                <li><a href="#marketplaces">Marketplaces</a></li>
+                <li><a href="#mobile-apps">Mobile Apps</a></li>
+                <li><a href="#educational">Educational</a></li>
+                <li><a href="#subscription">Subscription</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Ecommerce Solution -->
+    <section id="ecommerce" class="solution-section">
+        <div class="container">
+            <div class="solution-container">
+                <div class="solution-content">
+                    <h2 class="solution-title">Ecommerce Payments</h2>
+                    <p class="solution-description">Enhance your online store with seamless checkout experiences that convert browsers into buyers, wherever they're shopping from.</p>
+                    <ul class="solution-features">
+                        <li><i class="fas fa-check"></i> Customizable checkout pages that match your brand</li>
+                        <li><i class="fas fa-check"></i> Support for multiple payment methods</li>
+                        <li><i class="fas fa-check"></i> Optimized for mobile commerce</li>
+                        <li><i class="fas fa-check"></i> Abandoned cart recovery tools</li>
+                        <li><i class="fas fa-check"></i> Real-time fraud protection</li>
+                    </ul>
+                    <div class="solution-buttons">
+                        <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Get Started</a>
+                        <a href="{% url 'payments:pricing' %}" class="btn btn-outline">View Pricing</a>
+                    </div>
+                    
+                    <div class="testimonial-bubble">
+                        <p>"Implementing HamsukyPay increased our conversion rate by 35%. The seamless checkout experience and multiple payment options have been game-changers for our online store."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">AO</div>
+                            <div class="author-details">
+                                <h4>Adamu Okafor</h4>
+                                <p>CEO, Fashion Republic</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Ecommerce Solution">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Marketplaces Solution -->
+    <section id="marketplaces" class="solution-section reverse-layout">
+        <div class="container">
+            <div class="solution-container">
+                <div class="solution-content">
+                    <h2 class="solution-title">Marketplace Solutions</h2>
+                    <p class="solution-description">Enable secure transactions between buyers and sellers on your platform with our comprehensive marketplace payment solutions.</p>
+                    <ul class="solution-features">
+                        <li><i class="fas fa-check"></i> Split payments between platform and sellers</li>
+                        <li><i class="fas fa-check"></i> Automated seller onboarding and verification</li>
+                        <li><i class="fas fa-check"></i> Customizable transaction fees and commissions</li>
+                        <li><i class="fas fa-check"></i> Escrow services for buyer protection</li>
+                        <li><i class="fas fa-check"></i> Bulk payouts to sellers</li>
+                    </ul>
+                    <div class="solution-buttons">
+                        <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Get Started</a>
+                        <a href="{% url 'payments:pricing' %}" class="btn btn-outline">View Pricing</a>
+                    </div>
+                    
+                    <div class="testimonial-bubble">
+                        <p>"HamsukyPay's marketplace solution solved our complex payment distribution needs. Now we can focus on growing our platform without worrying about payment logistics."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">JK</div>
+                            <div class="author-details">
+                                <h4>Joy Kanu</h4>
+                                <p>CTO, HomeService Connect</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1571867424488-4565932edb41?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Marketplace Solution">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Mobile Apps Solution -->
+    <section id="mobile-apps" class="solution-section">
+        <div class="container">
+            <div class="solution-container">
+                <div class="solution-content">
+                    <h2 class="solution-title">Mobile App Payments</h2>
+                    <p class="solution-description">Drive user retention and monetization with friction-free in-app payment experiences that keep users engaged.</p>
+                    <ul class="solution-features">
+                        <li><i class="fas fa-check"></i> Native SDK for Android and iOS</li>
+                        <li><i class="fas fa-check"></i> Simplified integration with comprehensive documentation</li>
+                        <li><i class="fas fa-check"></i> In-app purchases and subscriptions</li>
+                        <li><i class="fas fa-check"></i> USSD and mobile money integration</li>
+                        <li><i class="fas fa-check"></i> Offline payment capabilities</li>
+                    </ul>
+                    <div class="solution-buttons">
+                        <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Get Started</a>
+                        <a href="{% url 'payments:pricing' %}" class="btn btn-outline">View Pricing</a>
+                    </div>
+                    
+                    <div class="testimonial-bubble">
+                        <p>"The HamsukyPay mobile SDK was incredibly easy to integrate, and the USSD payment option dramatically increased our payment success rates in areas with limited connectivity."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">TD</div>
+                            <div class="author-details">
+                                <h4>Tunde Dairo</h4>
+                                <p>Head of Product, RideShare</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1585435421671-0c16737a364a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Mobile App Solution">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Educational Institutions Solution -->
+    <section id="educational" class="solution-section reverse-layout">
+        <div class="container">
+            <div class="solution-container">
+                <div class="solution-content">
+                    <h2 class="solution-title">Educational Institutions</h2>
+                    <p class="solution-description">Simplify fee collection, reduce administrative burden, and provide parents and students with flexible payment options.</p>
+                    <ul class="solution-features">
+                        <li><i class="fas fa-check"></i> Centralized school fee management</li>
+                        <li><i class="fas fa-check"></i> Installment payment options</li>
+                        <li><i class="fas fa-check"></i> Digital receipts and payment tracking</li>
+                        <li><i class="fas fa-check"></i> Scholarship and discount management</li>
+                        <li><i class="fas fa-check"></i> API integration with school management systems</li>
+                    </ul>
+                    <div class="solution-buttons">
+                        <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Get Started</a>
+                        <a href="{% url 'payments:pricing' %}" class="btn btn-outline">View Pricing</a>
+                    </div>
+                    
+                    <div class="testimonial-bubble">
+                        <p>"With HamsukyPay, we've eliminated cash handling and improved our fee collection rate. Parents appreciate the flexible payment options and automated reminders."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">MA</div>
+                            <div class="author-details">
+                                <h4>Mrs. Abimbola</h4>
+                                <p>Bursar, Excellence Academy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Educational Solution">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Subscription Businesses -->
+    <section id="subscription" class="solution-section">
+        <div class="container">
+            <div class="solution-container">
+                <div class="solution-content">
+                    <h2 class="solution-title">Subscription Businesses</h2>
+                    <p class="solution-description">Grow your recurring revenue with flexible subscription management tools designed to reduce churn and maximize customer lifetime value.</p>
+                    <ul class="solution-features">
+                        <li><i class="fas fa-check"></i> Multiple subscription plan management</li>
+                        <li><i class="fas fa-check"></i> Automated recurring billing</li>
+                        <li><i class="fas fa-check"></i> Smart retry logic for failed payments</li>
+                        <li><i class="fas fa-check"></i> Subscription analytics and churn prevention</li>
+                        <li><i class="fas fa-check"></i> Flexible upgrade/downgrade options</li>
+                    </ul>
+                    <div class="solution-buttons">
+                        <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Get Started</a>
+                        <a href="{% url 'payments:pricing' %}" class="btn btn-outline">View Pricing</a>
+                    </div>
+                    
+                    <div class="testimonial-bubble">
+                        <p>"The subscription management tools from HamsukyPay have helped us reduce churn by 24%. The automated retries and payment notifications have been particularly effective."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">FO</div>
+                            <div class="author-details">
+                                <h4>Fatima Okeke</h4>
+                                <p>Finance Director, StreamBox</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1543286386-713bdd548da4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Subscription Business Solution">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to transform your payments experience?</h2>
+            <p class="cta-description">Join thousands of businesses using HamsukyPay to accept payments and grow their revenue.</p>
+            <a href="{% url 'payments:merchant_register' %}" class="btn btn-white btn-lg">Create Your Account</a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">Payments</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Invoicing</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Subscriptions</a></li>
+                        <li><a href="#" onclick="alert('Please enter a reference to view checkout page')">Checkout</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Solutions</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:solutions' %}#ecommerce">Ecommerce</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#marketplaces">Marketplaces</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#mobile-apps">Mobile Apps</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#educational">Educational Institutions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Developers</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Documentation</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">API Reference</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">SDKs & Libraries</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Developer Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">About Us</a></li>
+                        <li><a href="{% url 'payments:home' %}">Careers</a></li>
+                        <li><a href="{% url 'payments:home' %}">Blog</a></li>
+                        <li><a href="{% url 'payments:merchant_settings' %}">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 HamsukyPay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Solution Navigation
+        const solutionLinks = document.querySelectorAll('.solutions-nav a');
+        
+        solutionLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Remove active class from all links
+                solutionLinks.forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Smooth scroll to section
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Highlight active section on scroll
+        window.addEventListener('scroll', function() {
+            let current = '';
+            
+            document.querySelectorAll('.solution-section').forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = '#' + section.getAttribute('id');
+                }
+            });
+            
+            solutionLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

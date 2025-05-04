@@ -1,0 +1,74 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}
+Support Ticket #{{ ticket.ticket_id }} Assigned to You
+{% endblock %}
+
+{% block content %}
+<h1 style="color: #1cc88a;">🎯 Ticket Assigned to You</h1>
+
+<p>Dear {{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }},</p>
+
+<p>
+    A support ticket has been assigned to you. Please review the details below and respond promptly.
+</p>
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <tr>
+        <td><strong>Ticket ID:</strong></td>
+        <td>{{ ticket.ticket_id }}</td>
+    </tr>
+    <tr>
+        <td><strong>Subject:</strong></td>
+        <td>{{ ticket.subject }}</td>
+    </tr>
+    <tr>
+        <td><strong>Priority:</strong></td>
+        <td>
+            {% if ticket.priority == 'urgent' %}
+                <span style="color: #e74a3b; font-weight: bold;">Urgent</span>
+            {% elif ticket.priority == 'high' %}
+                <span style="color: #f6c23e; font-weight: bold;">High</span>
+            {% elif ticket.priority == 'medium' %}
+                <span style="color: #36b9cc; font-weight: bold;">Medium</span>
+            {% else %}
+                <span style="color: #858796;">Low</span>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Status:</strong></td>
+        <td>{{ ticket.get_status_display }}</td>
+    </tr>
+    <tr>
+        <td><strong>Submitted:</strong></td>
+        <td>{{ ticket.created_at|date:"F j, Y, g:i a" }}</td>
+    </tr>
+</table>
+
+<h2 style="margin-top: 20px;">🏢 Merchant Information</h2>
+<p>
+    <strong>Business Name:</strong> {{ ticket.merchant.business_name }}<br>
+    <strong>Email:</strong> {{ ticket.merchant.business_email }}<br>
+    <strong>Phone:</strong> {{ ticket.merchant.business_phone }}
+</p>
+
+<h2 style="margin-top: 20px;">📝 Message</h2>
+<p>{{ ticket.message|linebreaks }}</p>
+
+{% if ticket.attachment %}
+    <p><strong>📎 Attachment:</strong> The merchant has included an attachment with this ticket.</p>
+{% endif %}
+
+<h2 style="margin-top: 30px;">⏱️ Response Time Guidelines</h2>
+<ul>
+    <li><strong>Urgent Priority:</strong> Respond within 2 hours</li>
+    <li><strong>High Priority:</strong> Respond within 8 hours</li>
+    <li><strong>Medium Priority:</strong> Respond within 24 hours</li>
+    <li><strong>Low Priority:</strong> Respond within 48 hours</li>
+</ul>
+
+<p style="text-align: center; margin-top: 30px;">
+    <a href="{{ ticket_url }}" style="background-color: #1cc88a; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px;">🔍 View Ticket</a>
+</p>
+{% endblock %}

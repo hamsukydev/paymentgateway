@@ -1,0 +1,48 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}{{ page_title }} - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}Send an email to {{ merchant.business_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{% url 'payments:admin_send_merchant_email' merchant.id %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="emailTo" class="form-label">To</label>
+                <input type="email" class="form-control" id="emailTo" value="{{ merchant.business_email }}" disabled>
+                <div class="form-text">Email will be sent to the merchant's registered email address</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="subject" name="subject" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="message" name="message" rows="10" required></textarea>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'payments:admin_merchants' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i> Send Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set focus on subject field
+        document.getElementById('subject').focus();
+    });
+</script>
+{% endblock %}

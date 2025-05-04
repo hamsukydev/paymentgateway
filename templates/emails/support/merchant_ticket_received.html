@@ -1,0 +1,56 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}Your Support Ticket Has Been Received{% endblock %}
+
+{% block content %}
+<h1>Support Ticket Received</h1>
+
+<p>Dear {{ merchant.business_name }},</p>
+
+<p>Thank you for contacting HamsukyPay support. Your ticket has been received and will be reviewed by our support team as soon as possible.</p>
+
+<div class="ticket-info">
+    <table>
+        <tr>
+            <td><strong>Ticket ID:</strong></td>
+            <td class="ticket-id">{{ ticket.ticket_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Subject:</strong></td>
+            <td>{{ ticket.subject }}</td>
+        </tr>
+        <tr>
+            <td><strong>Priority:</strong></td>
+            <td>{{ ticket.get_priority_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Type:</strong></td>
+            <td>{{ ticket.get_ticket_type_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Submitted:</strong></td>
+            <td>{{ ticket.created_at|date:"F j, Y, g:i a" }}</td>
+        </tr>
+    </table>
+</div>
+
+<p>Our support team will respond to your ticket as soon as possible. You can view and update your ticket at any time by clicking the link below.</p>
+
+<a href="{{ ticket_url }}" class="btn">View Your Ticket</a>
+
+<p>Response times may vary based on the nature of the inquiry and current ticket volume. Our typical response times are:</p>
+
+<ul>
+    <li><strong>Urgent Priority:</strong> Within 2 hours</li>
+    <li><strong>High Priority:</strong> Within 8 hours</li>
+    <li><strong>Medium Priority:</strong> Within 24 hours</li>
+    <li><strong>Low Priority:</strong> Within 48 hours</li>
+</ul>
+
+<p>If you have additional information to add to your ticket, please log in to your merchant dashboard and reply to the ticket. Please do not create multiple tickets for the same issue as this may delay our response.</p>
+
+<p>Thank you for your patience.</p>
+
+<p>Best regards,<br>
+The HamsukyPay Support Team</p>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Confirmation - HamsukyPay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #9C27B0;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #9C27B0;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .subscription-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Subscription Confirmed</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ customer.name }},</p>
+        
+        <p>Thank you for subscribing! Your subscription has been confirmed and is now active.</p>
+        
+        <div class="subscription-details">
+            <h3>Subscription Details:</h3>
+            <div class="detail-row">
+                <span><strong>Plan Name:</strong></span>
+                <span>{{ subscription.plan.name }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Price:</strong></span>
+                <span>{{ subscription.plan.currency }} {{ subscription.plan.amount|floatformat:2 }} / {{ subscription.plan.interval }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Start Date:</strong></span>
+                <span>{{ subscription.created_at|date:"F d, Y" }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Next Payment:</strong></span>
+                <span>{{ subscription.next_payment_date|date:"F d, Y" }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Status:</strong></span>
+                <span>Active</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Reference:</strong></span>
+                <span>{{ subscription.reference }}</span>
+            </div>
+        </div>
+        
+        <h3>What's Included:</h3>
+        <p>{{ subscription.plan.description }}</p>
+        
+        <p>You can manage your subscription at any time by logging into your account. If you need to update your payment details, pause, or cancel your subscription, you can do so from your account dashboard.</p>
+        
+        <p>If you have any questions about your subscription, please don't hesitate to contact our support team.</p>
+        
+        <p>Thank you for choosing {{ merchant_name }}!</p>
+        
+        <a href="#" class="button">Manage Your Subscription</a>
+    </div>
+    <div class="footer">
+        <p>This is an automated notification. Please do not reply directly to this email.</p>
+        <p>&copy; {% now "Y" %} {{ merchant_name }}. All rights reserved.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}New Support Ticket #{{ ticket.ticket_id }}{% endblock %}
+
+{% block content %}
+<h1>New Support Ticket</h1>
+
+<p>A new support ticket has been submitted by {{ ticket.merchant.business_name }}.</p>
+
+<div class="ticket-info">
+    <table>
+        <tr>
+            <td><strong>Ticket ID:</strong></td>
+            <td class="ticket-id">{{ ticket.ticket_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Subject:</strong></td>
+            <td>{{ ticket.subject }}</td>
+        </tr>
+        <tr>
+            <td><strong>Priority:</strong></td>
+            <td>
+                {% if ticket.priority == 'urgent' %}
+                <span class="urgent-priority">Urgent</span>
+                {% elif ticket.priority == 'high' %}
+                <span class="high-priority">High</span>
+                {% elif ticket.priority == 'medium' %}
+                <span class="medium-priority">Medium</span>
+                {% else %}
+                <span>Low</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Type:</strong></td>
+            <td>{{ ticket.get_ticket_type_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Submitted:</strong></td>
+            <td>{{ ticket.created_at|date:"F j, Y, g:i a" }}</td>
+        </tr>
+    </table>
+</div>
+
+<h2>Message:</h2>
+<p>{{ ticket.message }}</p>
+
+{% if ticket.attachment %}
+<p><strong>Attachment:</strong> The merchant has included an attachment with this ticket.</p>
+{% endif %}
+
+<h2>Merchant Information:</h2>
+<p>
+    <strong>Business Name:</strong> {{ ticket.merchant.business_name }}<br>
+    <strong>Email:</strong> {{ ticket.merchant.business_email }}<br>
+    <strong>Phone:</strong> {{ ticket.merchant.business_phone }}<br>
+    <strong>Account Created:</strong> {{ ticket.merchant.created_at|date:"F j, Y" }}<br>
+</p>
+
+<p>Please respond to this ticket promptly{% if ticket.priority == 'urgent' or ticket.priority == 'high' %}, as it requires immediate attention{% endif %}.</p>
+
+<a href="{{ ticket_url }}" class="btn">View Ticket</a>
+{% endblock %}

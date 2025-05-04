@@ -1,0 +1,780 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HamsukyPay Admin{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #3469c6;
+            --primary-light: #4d7fd9;
+            --primary-dark: #2a55a1;
+            --secondary: #123866;
+            --accent: #00c2a8;
+            --success: #0ead69;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3B82F6;
+            --light: #f9fbfd;
+            --dark: #1f2b48;
+            --gray: #64748b;
+            --gray-light: #f1f5f9;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --box-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 260px;
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-logo img {
+            max-height: 36px;
+            margin-right: 10px;
+        }
+        
+        .sidebar-logo span {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .sidebar-menu-item {
+            position: relative;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .sidebar-menu-item:hover {
+            color: var(--primary);
+            background-color: var(--gray-light);
+        }
+        
+        .sidebar-menu-item.active {
+            color: var(--primary);
+            background-color: rgba(52, 105, 198, 0.08);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .sidebar-menu-item i {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .sidebar-menu-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray);
+            padding: 1.25rem 1.5rem 0.5rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-divider {
+            margin: 1rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var (--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-title p {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin: 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            padding-left: 2.5rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--gray-light);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+            background-color: white;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+        
+        .card-header-title {
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Tables */
+        .table {
+            margin-bottom: 0;
+            color: var(--gray);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var (--dark);
+            background-color: var(--light);
+            border-top: none;
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .table td {
+            vertical-align: middle;
+            padding: 1rem 1.25rem;
+            border-color: var(--border-color);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Stats cards */
+        .stats-card {
+            display: flex;
+            align-items: center;
+        }
+        
+        .stats-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+            color: white;
+        }
+        
+        .stats-card-icon.primary {
+            background-color: var(--primary);
+        }
+        
+        .stats-card-icon.success {
+            background-color: var(--success);
+        }
+        
+        .stats-card-icon.warning {
+            background-color: var(--warning);
+        }
+        
+        .stats-card-icon.danger {
+            background-color: var(--danger);
+        }
+        
+        .stats-card-icon.info {
+            background-color: var(--info);
+        }
+        
+        .stats-card-info {
+            flex: 1;
+        }
+        
+        .stats-card-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0 0 0.25rem;
+        }
+        
+        .stats-card-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+        
+        .stats-card-change.up {
+            color: var (--success);
+        }
+        
+        .stats-card-change.down {
+            color: var (--danger);
+        }
+        
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 2rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge-success {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success);
+        }
+        
+        .status-badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .status-badge-secondary {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--gray);
+        }
+        
+        /* Forms */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border-color: var(--border-color);
+            padding: 0.625rem 0.875rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(52, 105, 198, 0.25);
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.625rem 1rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        /* User dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .user-dropdown-toggle:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .user-info {
+            margin-right: 0.5rem;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark);
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        .sidebar-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+            background-color: white;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: var(--box-shadow-lg);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: flex;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box {
+                flex: 1;
+                max-width: 250px;
+            }
+        }
+        
+        /* Utility classes */
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .fs-sm {
+            font-size: 0.875rem;
+        }
+        
+        .fs-xs {
+            font-size: 0.75rem;
+        }
+        
+        .fw-medium {
+            font-weight: 500;
+        }
+        
+        .fw-semibold {
+            font-weight: 600;
+        }
+        
+        /* Dropdown improvements */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--box-shadow-md);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+        }
+        
+        .dropdown-item:active, .dropdown-item:focus {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Badge styles */
+        .badge {
+            padding: 0.35em 0.65em;
+            font-weight: 600;
+        }
+        
+        .badge.bg-primary {
+            background-color: var(--primary) !important;
+        }
+        
+        .badge.bg-success {
+            background-color: var(--success) !important;
+        }
+        
+        .badge.bg-warning {
+            background-color: var(--warning) !important;
+        }
+        
+        .badge.bg-danger {
+            background-color: var(--danger) !important;
+        }
+    </style>
+    
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="{% static 'img/logo.png' %}" alt="HamsukyPay">
+            <span>HamsukyPay</span>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="{% url 'payments:custom_admin_dashboard' %}" class="sidebar-menu-item {% if request.path == '/admin-custom/dashboard/' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <a href="{% url 'payments:admin_transactions' %}" class="sidebar-menu-item {% if 'admin-custom/transactions' in request.path %}active{% endif %}">
+                <i class="fas fa-exchange-alt"></i>
+                Transactions
+            </a>
+            
+            <a href="{% url 'payments:admin_merchants' %}" class="sidebar-menu-item {% if 'admin-custom/merchants' in request.path %}active{% endif %}">
+                <i class="fas fa-store"></i>
+                Merchants
+            </a>
+            
+            <a href="{% url 'payments:admin_customers' %}" class="sidebar-menu-item {% if 'admin-custom/customers' in request.path %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                Customers
+            </a>
+            
+            <a href="{% url 'payments:admin_subscriptions' %}" class="sidebar-menu-item {% if 'admin-custom/subscriptions' in request.path %}active{% endif %}">
+                <i class="fas fa-sync-alt"></i>
+                Subscriptions
+            </a>
+            
+            <a href="{% url 'payments:admin_plans' %}" class="sidebar-menu-item {% if 'admin-custom/plans' in request.path %}active{% endif %}">
+                <i class="fas fa-th-list"></i>
+                Payment Plans
+            </a>
+            
+            <div class="sidebar-divider"></div>
+            
+            <div class="sidebar-menu-header">INSIGHTS</div>
+            
+            <a href="{% url 'payments:admin_analytics' %}" class="sidebar-menu-item {% if 'admin-custom/analytics' in request.path %}active{% endif %}">
+                <i class="fas fa-chart-line"></i>
+                Analytics
+            </a>
+            
+            <a href="{% url 'payments:admin_compliance' %}" class="sidebar-menu-item {% if 'admin-custom/compliance' in request.path %}active{% endif %}">
+                <i class="fas fa-shield-alt"></i>
+                Compliance
+            </a>
+            
+            <div class="sidebar-divider"></div>
+            
+            <div class="sidebar-menu-header">ADMINISTRATION</div>
+            
+            <a href="{% url 'payments:admin_user_management' %}" class="sidebar-menu-item {% if 'admin-custom/users' in request.path %}active{% endif %}">
+                <i class="fas fa-user-cog"></i>
+                User Management
+            </a>
+            
+            <a href="{% url 'payments:admin_settings' %}" class="sidebar-menu-item {% if 'admin-custom/settings' in request.path %}active{% endif %}">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+            
+            <div class="sidebar-divider"></div>
+            
+            <div class="sidebar-menu-header">HELP & SUPPORT</div>
+            
+            <a href="{% url 'payments:admin_documentation' %}" class="sidebar-menu-item {% if 'admin-custom/documentation' in request.path %}active{% endif %}">
+                <i class="fas fa-question-circle"></i>
+                Documentation
+            </a>
+            
+            <a href="{% url 'payments:admin_support_tickets' %}" class="sidebar-menu-item {% if 'admin-custom/support' in request.path %}active{% endif %}">
+                <i class="fas fa-life-ring"></i>
+                Support
+            </a>
+            
+            <a href="{% url 'payments:admin_logout' %}" class="sidebar-menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="d-flex align-items-center">
+                <div class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="header-title">
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                    <p>{% block page_subtitle %}Welcome to HamsukyPay Admin{% endblock %}</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="search-box d-none d-md-block">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" placeholder="Search...">
+                </div>
+                
+                <div class="dropdown">
+                    <a class="btn btn-light position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                            <span class="visually-hidden">unread notifications</span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                        <li><a class="dropdown-item" href="#">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-2 text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 fs-sm fw-medium">New transaction received</p>
+                                    <span class="fs-xs text-muted">5 minutes ago</span>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><a class="dropdown-item" href="#">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-2 text-primary">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 fs-sm fw-medium">New merchant registered</p>
+                                    <span class="fs-xs text-muted">1 hour ago</span>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><a class="dropdown-item" href="#">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-2 text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 fs-sm fw-medium">System update available</p>
+                                    <span class="fs-xs text-muted">2 days ago</span>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center fs-sm" href="#">View all notifications</a></li>
+                    </ul>
+                </div>
+                
+                <div class="dropdown user-dropdown">
+                    <a class="user-dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar">
+                            {% if request.user.first_name and request.user.last_name %}
+                                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                            {% else %}
+                                {{ request.user.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info d-none d-md-block">
+                            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'payments:admin_logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Common Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle for mobile
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+            
+            // Close sidebar when clicking outside (on mobile)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth < 992 && 
+                    !event.target.closest('#sidebar') && 
+                    !event.target.closest('#sidebarToggle') && 
+                    sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                }
+            });
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

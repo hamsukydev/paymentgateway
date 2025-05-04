@@ -1,0 +1,1050 @@
+{% extends "payments/base.html" %}
+{% load static %}
+
+{% block title %}API Documentation - HamsukyPay{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+<style>
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info .title small { display: none }
+    .api-key-container {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .api-key-container h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    .environment-toggle {
+        margin-top: 1.5rem;
+    }
+    .swagger-ui .scheme-container {
+        background-color: transparent;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+    }
+    .swagger-ui select {
+        border-color: #ced4da;
+    }
+    .swagger-ui .btn {
+        box-shadow: none;
+    }
+    .swagger-ui .opblock-tag {
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>API Documentation</h1>
+        <p>Integrate HamsukyPay's payment solutions into your applications with our powerful REST API</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- API Key Container -->
+            <div class="api-key-container">
+                <h3>Your API Keys</h3>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label class="form-label">Public Key:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="{{ merchant.public_key }}" id="publicKeyInput" readonly>
+                                <button class="btn btn-outline-secondary copy-btn" type="button" data-clipboard-target="#publicKeyInput">Copy</button>
+                            </div>
+                            <small class="text-muted">Use in client-side code for initializing payments.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label class="form-label">Secret Key:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="sk_****{{ merchant.secret_key|slice:'-4:' }}" id="secretKeyInput" readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="revealSecretKey">Show</button>
+                                <button class="btn btn-outline-secondary copy-btn" type="button" data-clipboard-target="#secretKeyInput">Copy</button>
+                            </div>
+                            <small class="text-muted">Keep your secret key secure. Never share it in client-side code.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="environment-toggle">
+                            <label class="form-label">Environment:</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="sandboxToggle">
+                                <label class="form-check-label" for="sandboxToggle">
+                                    <span id="envMode">Live Mode</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Swagger UI will be rendered here -->
+            <div id="swagger-ui"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-standalone-preset.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+<script>
+    // Define your OpenAPI specification as a JavaScript object
+    const spec = {
+        openapi: "3.0.0",
+        info: {
+            title: "HamsukyPay API",
+            version: "1.0.0",
+            description: "The HamsukyPay API is organized around REST principles. It uses standard HTTP response codes, authentication, and verbs. All responses are returned in JSON format, including errors.",
+            contact: {
+                name: "API Support",
+                email: "dev-support@hamsukypay.com"
+            }
+        },
+        servers: [
+            {
+                url: "https://api.hamsukypay.com/v1",
+                description: "Production Server"
+            },
+            {
+                url: "https://sandbox.hamsukypay.com/v1",
+                description: "Sandbox Server"
+            }
+        ],
+        components: {
+            securitySchemes: {
+                ApiKeyAuth: {
+                    type: "apiKey",
+                    in: "header",
+                    name: "X-API-Key",
+                    description: "API Key Authentication"
+                }
+            },
+            schemas: {
+                Amount: {
+                    type: "number",
+                    format: "decimal",
+                    minimum: 0,
+                    example: 10000
+                },
+                Currency: {
+                    type: "string",
+                    enum: ["NGN", "USD", "GBP", "EUR"],
+                    example: "NGN"
+                },
+                Email: {
+                    type: "string",
+                    format: "email",
+                    example: "customer@example.com"
+                },
+                Reference: {
+                    type: "string",
+                    pattern: "^[A-Za-z0-9-_]+$",
+                    example: "TRX-123456789"
+                },
+                ErrorResponse: {
+                    type: "object",
+                    properties: {
+                        status: {
+                            type: "string",
+                            enum: ["error"]
+                        },
+                        message: {
+                            type: "string"
+                        },
+                        code: {
+                            type: "string"
+                        }
+                    }
+                }
+            }
+        },
+        security: [
+            {
+                ApiKeyAuth: []
+            }
+        ],
+        paths: {
+            "/payments/initialize": {
+                post: {
+                    summary: "Initialize Payment",
+                    description: "Initializes a new payment transaction and returns details needed for checkout.",
+                    tags: ["Payments"],
+                    operationId: "initializePayment",
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["amount", "email", "currency"],
+                                    properties: {
+                                        amount: {
+                                            $ref: "#/components/schemas/Amount"
+                                        },
+                                        email: {
+                                            $ref: "#/components/schemas/Email"
+                                        },
+                                        currency: {
+                                            $ref: "#/components/schemas/Currency"
+                                        },
+                                        callback_url: {
+                                            type: "string",
+                                            format: "uri",
+                                            example: "https://example.com/callback"
+                                        },
+                                        metadata: {
+                                            type: "object",
+                                            example: {
+                                                order_id: "12345",
+                                                customer_name: "John Doe"
+                                            }
+                                        },
+                                        payment_method: {
+                                            type: "string",
+                                            enum: ["credit_card", "bank_transfer", "ussd", "qr_code", "mobile_money"],
+                                            example: "credit_card"
+                                        },
+                                        description: {
+                                            type: "string",
+                                            example: "Payment for order #12345"
+                                        },
+                                        reference: {
+                                            type: "string",
+                                            example: "ORD12345"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Payment initialized successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Payment initialized"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    reference: {
+                                                        $ref: "#/components/schemas/Reference"
+                                                    },
+                                                    authorization_url: {
+                                                        type: "string",
+                                                        format: "uri",
+                                                        example: "/payments/checkout/TRX-123456789/"
+                                                    },
+                                                    access_code: {
+                                                        type: "string",
+                                                        example: "ACCESS-123ABC"
+                                                    },
+                                                    amount: {
+                                                        $ref: "#/components/schemas/Amount"
+                                                    },
+                                                    currency: {
+                                                        $ref: "#/components/schemas/Currency"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            description: "Invalid request",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        $ref: "#/components/schemas/ErrorResponse"
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            description: "Unauthorized",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        $ref: "#/components/schemas/ErrorResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/process/{reference}": {
+                post: {
+                    summary: "Process Payment",
+                    description: "Process a payment with payment details. This endpoint is typically called after initializing a payment and collecting the customer's payment information.",
+                    tags: ["Payments"],
+                    operationId: "processPayment",
+                    parameters: [
+                        {
+                            name: "reference",
+                            in: "path",
+                            required: true,
+                            description: "Payment reference",
+                            schema: {
+                                $ref: "#/components/schemas/Reference"
+                            }
+                        }
+                    ],
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["payment_details"],
+                                    properties: {
+                                        payment_details: {
+                                            type: "object",
+                                            properties: {
+                                                card: {
+                                                    type: "object",
+                                                    properties: {
+                                                        number: {
+                                                            type: "string",
+                                                            example: "4242424242424242"
+                                                        },
+                                                        expiry_month: {
+                                                            type: "string",
+                                                            example: "12"
+                                                        },
+                                                        expiry_year: {
+                                                            type: "string",
+                                                            example: "2025"
+                                                        },
+                                                        cvv: {
+                                                            type: "string",
+                                                            example: "123"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        device_fingerprint: {
+                                            type: "string",
+                                            example: "dfp_123456789"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Payment processed successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            success: {
+                                                type: "boolean",
+                                                example: true
+                                            },
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            transaction_id: {
+                                                type: "string",
+                                                example: "TRX-123456789"
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Payment processed successfully"
+                                            },
+                                            card_type: {
+                                                type: "string",
+                                                example: "visa"
+                                            },
+                                            last4: {
+                                                type: "string",
+                                                example: "4242"
+                                            },
+                                            reference: {
+                                                $ref: "#/components/schemas/Reference"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/verify/{reference}": {
+                get: {
+                    summary: "Verify Payment",
+                    description: "Verify the status of a payment transaction.",
+                    tags: ["Payments"],
+                    operationId: "verifyPayment",
+                    parameters: [
+                        {
+                            name: "reference",
+                            in: "path",
+                            required: true,
+                            description: "Payment reference",
+                            schema: {
+                                $ref: "#/components/schemas/Reference"
+                            }
+                        }
+                    ],
+                    responses: {
+                        "200": {
+                            description: "Payment verification successful",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Transaction verified. Status: success"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    reference: {
+                                                        $ref: "#/components/schemas/Reference"
+                                                    },
+                                                    status: {
+                                                        type: "string",
+                                                        enum: ["pending", "success", "failed"]
+                                                    },
+                                                    amount: {
+                                                        $ref: "#/components/schemas/Amount"
+                                                    },
+                                                    currency: {
+                                                        $ref: "#/components/schemas/Currency"
+                                                    },
+                                                    payment_method: {
+                                                        type: "string"
+                                                    },
+                                                    customer_email: {
+                                                        $ref: "#/components/schemas/Email"
+                                                    },
+                                                    created_at: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    },
+                                                    completed_at: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/refund/{reference}": {
+                post: {
+                    summary: "Process Refund",
+                    description: "Process a refund for a transaction. You can process partial or full refunds.",
+                    tags: ["Payments"],
+                    operationId: "processRefund",
+                    parameters: [
+                        {
+                            name: "reference",
+                            in: "path",
+                            required: true,
+                            description: "Payment reference",
+                            schema: {
+                                $ref: "#/components/schemas/Reference"
+                            }
+                        }
+                    ],
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        amount: {
+                                            $ref: "#/components/schemas/Amount"
+                                        },
+                                        reason: {
+                                            type: "string",
+                                            example: "Customer requested partial refund"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Refund processed successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Refund processed successfully"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    refund_reference: {
+                                                        type: "string",
+                                                        example: "RF-123456789"
+                                                    },
+                                                    original_reference: {
+                                                        $ref: "#/components/schemas/Reference"
+                                                    },
+                                                    amount: {
+                                                        $ref: "#/components/schemas/Amount"
+                                                    },
+                                                    currency: {
+                                                        $ref: "#/components/schemas/Currency"
+                                                    },
+                                                    date: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/customers/create": {
+                post: {
+                    summary: "Create Customer",
+                    description: "Create a new customer record or update an existing one.",
+                    tags: ["Customers"],
+                    operationId: "createCustomer",
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["email"],
+                                    properties: {
+                                        email: {
+                                            $ref: "#/components/schemas/Email"
+                                        },
+                                        name: {
+                                            type: "string",
+                                            example: "John Doe"
+                                        },
+                                        phone: {
+                                            type: "string",
+                                            example: "+2341234567890"
+                                        },
+                                        external_id: {
+                                            type: "string",
+                                            example: "CUST-123"
+                                        },
+                                        metadata: {
+                                            type: "object",
+                                            example: {
+                                                age: 30,
+                                                address: "123 Example Street",
+                                                city: "Lagos"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Customer created successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Customer created successfully"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    id: {
+                                                        type: "string",
+                                                        example: "cust_123456789"
+                                                    },
+                                                    email: {
+                                                        $ref: "#/components/schemas/Email"
+                                                    },
+                                                    name: {
+                                                        type: "string"
+                                                    },
+                                                    phone: {
+                                                        type: "string"
+                                                    },
+                                                    external_id: {
+                                                        type: "string"
+                                                    },
+                                                    created_at: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/plans/create": {
+                post: {
+                    summary: "Create Payment Plan",
+                    description: "Create a new recurring payment plan.",
+                    tags: ["Subscriptions"],
+                    operationId: "createPlan",
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["name", "amount", "currency", "interval"],
+                                    properties: {
+                                        name: {
+                                            type: "string",
+                                            example: "Premium Plan"
+                                        },
+                                        description: {
+                                            type: "string",
+                                            example: "Monthly premium subscription"
+                                        },
+                                        amount: {
+                                            $ref: "#/components/schemas/Amount"
+                                        },
+                                        currency: {
+                                            $ref: "#/components/schemas/Currency"
+                                        },
+                                        interval: {
+                                            type: "string",
+                                            enum: ["daily", "weekly", "monthly", "quarterly", "annually"],
+                                            example: "monthly"
+                                        },
+                                        is_active: {
+                                            type: "boolean",
+                                            default: true
+                                        },
+                                        metadata: {
+                                            type: "object",
+                                            example: {
+                                                features: ["Feature 1", "Feature 2", "Feature 3"]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Plan created successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Payment plan created successfully"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    id: {
+                                                        type: "string",
+                                                        example: "plan_123456789"
+                                                    },
+                                                    name: {
+                                                        type: "string"
+                                                    },
+                                                    amount: {
+                                                        $ref: "#/components/schemas/Amount"
+                                                    },
+                                                    currency: {
+                                                        $ref: "#/components/schemas/Currency"
+                                                    },
+                                                    interval: {
+                                                        type: "string"
+                                                    },
+                                                    is_active: {
+                                                        type: "boolean"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/subscriptions/create": {
+                post: {
+                    summary: "Create Subscription",
+                    description: "Subscribe a customer to a payment plan.",
+                    tags: ["Subscriptions"],
+                    operationId: "createSubscription",
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["customer", "plan"],
+                                    properties: {
+                                        customer: {
+                                            type: "string",
+                                            example: "customer@example.com"
+                                        },
+                                        plan: {
+                                            type: "string",
+                                            example: "Premium Plan"
+                                        },
+                                        start_date: {
+                                            type: "string",
+                                            format: "date-time",
+                                            example: "2025-05-01T00:00:00Z"
+                                        },
+                                        charge_immediately: {
+                                            type: "boolean",
+                                            default: false
+                                        },
+                                        metadata: {
+                                            type: "object",
+                                            example: {
+                                                referral_code: "REF123"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Subscription created successfully",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Subscription created successfully"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    id: {
+                                                        type: "string",
+                                                        example: "sub_123456789"
+                                                    },
+                                                    reference: {
+                                                        type: "string",
+                                                        example: "sub_abcdef123456"
+                                                    },
+                                                    status: {
+                                                        type: "string",
+                                                        enum: ["active", "paused", "canceled"]
+                                                    },
+                                                    start_date: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    },
+                                                    next_payment_date: {
+                                                        type: "string",
+                                                        format: "date-time"
+                                                    },
+                                                    plan: {
+                                                        type: "object",
+                                                        properties: {
+                                                            id: {
+                                                                type: "string"
+                                                            },
+                                                            name: {
+                                                                type: "string"
+                                                            },
+                                                            amount: {
+                                                                $ref: "#/components/schemas/Amount"
+                                                            },
+                                                            currency: {
+                                                                $ref: "#/components/schemas/Currency"
+                                                            },
+                                                            interval: {
+                                                                type: "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    customer: {
+                                                        type: "object",
+                                                        properties: {
+                                                            id: {
+                                                                type: "string"
+                                                            },
+                                                            email: {
+                                                                $ref: "#/components/schemas/Email"
+                                                            },
+                                                            name: {
+                                                                type: "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/payments/tokenize": {
+                post: {
+                    summary: "Tokenize Card",
+                    description: "Convert card details into a secure token that can be used for future payments.",
+                    tags: ["Tokenization"],
+                    operationId: "tokenizeCard",
+                    requestBody: {
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    required: ["card", "customer"],
+                                    properties: {
+                                        card: {
+                                            type: "object",
+                                            required: ["number", "expiry_month", "expiry_year", "cvv"],
+                                            properties: {
+                                                number: {
+                                                    type: "string",
+                                                    example: "4242424242424242"
+                                                },
+                                                expiry_month: {
+                                                    type: "string",
+                                                    example: "12"
+                                                },
+                                                expiry_year: {
+                                                    type: "string",
+                                                    example: "2025"
+                                                },
+                                                cvv: {
+                                                    type: "string",
+                                                    example: "123"
+                                                },
+                                                cardholder_name: {
+                                                    type: "string",
+                                                    example: "JOHN DOE"
+                                                }
+                                            }
+                                        },
+                                        customer: {
+                                            type: "string",
+                                            example: "customer@example.com"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        "200": {
+                            description: "Card tokenization successful",
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            status: {
+                                                type: "string",
+                                                enum: ["success"]
+                                            },
+                                            message: {
+                                                type: "string",
+                                                example: "Card tokenized successfully"
+                                            },
+                                            data: {
+                                                type: "object",
+                                                properties: {
+                                                    token: {
+                                                        type: "string",
+                                                        example: "tok_1_abc123def456"
+                                                    },
+                                                    last4: {
+                                                        type: "string",
+                                                        example: "4242"
+                                                    },
+                                                    card_type: {
+                                                        type: "string",
+                                                        example: "visa"
+                                                    },
+                                                    exp_month: {
+                                                        type: "string",
+                                                        example: "12"
+                                                    },
+                                                    exp_year: {
+                                                        type: "string",
+                                                        example: "2025"
+                                                    },
+                                                    is_default: {
+                                                        type: "boolean",
+                                                        example: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        tags: [
+            {
+                name: "Payments",
+                description: "Process one-time payments, verify transactions, and manage refunds"
+            },
+            {
+                name: "Customers",
+                description: "Create and manage customer records"
+            },
+            {
+                name: "Subscriptions",
+                description: "Create and manage recurring billing plans and subscriptions"
+            },
+            {
+                name: "Tokenization",
+                description: "Securely store payment methods for future transactions"
+            }
+        ]
+    };
+
+    // Initialize Swagger UI
+    window.addEventListener('load', function() {
+        const ui = SwaggerUIBundle({
+            spec: spec,
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            defaultModelsExpandDepth: -1,
+            displayRequestDuration: true,
+            filter: true,
+            syntaxHighlight: {
+                activated: true,
+                theme: "agate"
+            }
+        });
+        window.ui = ui;
+    });
+
+    // Initialize clipboard
+    new ClipboardJS('.copy-btn');
+    
+    // Reveal secret key
+    $('#revealSecretKey').click(function() {
+        $.get('{% url "payments:merchant_api_keys" %}?reveal_secret=true', function(data) {
+            $('#secretKeyInput').val(data.secret_key);
+            $('#revealSecretKey').text('Hide').removeClass('btn-outline-secondary').addClass('btn-outline-danger');
+            
+            // Reset after 30 seconds
+            setTimeout(function() {
+                $('#secretKeyInput').val('sk_****' + data.secret_key.slice(-4));
+                $('#revealSecretKey').text('Show').removeClass('btn-outline-danger').addClass('btn-outline-secondary');
+            }, 30000);
+        });
+    });
+    
+    // Handle copy button text
+    $('.copy-btn').click(function() {
+        const originalText = $(this).text();
+        $(this).text('Copied!');
+        setTimeout(() => {
+            $(this).text(originalText);
+        }, 2000);
+    });
+    
+    // Toggle sandbox mode
+    $('#sandboxToggle').change(function() {
+        if ($(this).is(':checked')) {
+            $('#envMode').text('Sandbox Mode');
+            // Update Swagger URL to sandbox
+            window.ui.specActions.updateUrl("https://sandbox.hamsukypay.com/v1");
+        } else {
+            $('#envMode').text('Live Mode');
+            // Update Swagger URL to production
+            window.ui.specActions.updateUrl("https://api.hamsukypay.com/v1");
+        }
+    });
+</script>
+{% endblock %}

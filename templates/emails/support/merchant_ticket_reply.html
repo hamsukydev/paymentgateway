@@ -1,0 +1,50 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}New Response to Your Support Ticket{% endblock %}
+
+{% block content %}
+<h1>New Response to Your Support Ticket</h1>
+
+<p>Dear {{ ticket.merchant.business_name }},</p>
+
+<p>There is a new response to your support ticket from our team.</p>
+
+<div class="ticket-info">
+    <table>
+        <tr>
+            <td><strong>Ticket ID:</strong></td>
+            <td class="ticket-id">{{ ticket.ticket_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Subject:</strong></td>
+            <td>{{ ticket.subject }}</td>
+        </tr>
+        <tr>
+            <td><strong>Status:</strong></td>
+            <td>{{ ticket.get_status_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Last Updated:</strong></td>
+            <td>{{ reply.created_at|date:"F j, Y, g:i a" }}</td>
+        </tr>
+    </table>
+</div>
+
+<h2>Response from {{ reply.user.get_full_name|default:reply.user.username }}:</h2>
+<p>{{ reply.message }}</p>
+
+{% if reply.attachment %}
+<p><strong>Attachment:</strong> Our support team has included an attachment with this response.</p>
+{% endif %}
+
+<p>You can view the full conversation and reply to this message by clicking the button below:</p>
+
+<a href="{{ ticket_url }}" class="btn">View Ticket</a>
+
+<p>If you're satisfied with our response and your issue has been resolved, you can mark the ticket as resolved in your merchant dashboard.</p>
+
+<p>Thank you for choosing HamsukyPay for your payment processing needs.</p>
+
+<p>Best regards,<br>
+The HamsukyPay Support Team</p>
+{% endblock %}

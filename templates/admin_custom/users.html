@@ -1,0 +1,391 @@
+{% extends 'admin_custom/base.html' %}
+{% load payment_filters %}
+
+{% block title %}User Management - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}User Management{% endblock %}
+{% block page_subtitle %}Manage administrator accounts and permissions{% endblock %}
+
+{% block styles %}
+<style>
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    
+    .user-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-md);
+    }
+    
+    .permission-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+    }
+    
+    .permission-admin {
+        background-color: rgba(52, 105, 198, 0.1);
+        color: var(--primary);
+    }
+    
+    .permission-staff {
+        background-color: rgba(14, 173, 105, 0.1);
+        color: var(--success);
+    }
+    
+    .permission-superuser {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+    
+    .activity-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+    
+    .activity-active {
+        background-color: var(--success);
+    }
+    
+    .activity-inactive {
+        background-color: var(--danger);
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .user-email {
+        font-size: 0.875rem;
+        color: var(--gray);
+    }
+    
+    .user-metadata {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        color: var(--gray);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Add User Section -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="card-header-title mb-0">Add New Admin User</h6>
+    </div>
+    <div class="card-body">
+        <form id="addUserForm" method="post" action="{% url 'payments:admin_add_user' %}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="user_type">User Type</label>
+                    <select class="form-select" id="user_type" name="user_type" required>
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                        <option value="superuser">Superuser</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i> Add User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Staff Users Section -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="card-header-title mb-0">Admin Staff Users</h6>
+        <div class="card-header-actions">
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importUsersModal">
+                <i class="fas fa-file-import me-1"></i> Import Users
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Last Login</th>
+                        <th>Date Joined</th>
+                        <th>Status</th>
+                        <th>Permissions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in staff_users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    {% if user.first_name %}
+                                        {{ user.first_name|make_list|first|upper }}{{ user.last_name|make_list|first|upper }}
+                                    {% else %}
+                                        {{ user.username|make_list|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="user-name">
+                                        {% if user.first_name %}
+                                            {{ user.first_name }} {{ user.last_name }}
+                                        {% else %}
+                                            {{ user.username }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                {{ user.last_login|date:"M d, Y H:i" }}
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="d-flex align-items-center">
+                                    <span class="activity-indicator activity-active"></span>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="d-flex align-items-center">
+                                    <span class="activity-indicator activity-inactive"></span>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                                <span class="permission-badge permission-superuser">Superuser</span>
+                            {% elif user.is_staff %}
+                                <span class="permission-badge permission-admin">Admin</span>
+                            {% else %}
+                                <span class="permission-badge permission-staff">Staff</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                {% if user.is_active %}
+                                <form action="{% url 'payments:admin_toggle_user_status' user.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="deactivate">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form action="{% url 'payments:admin_toggle_user_status' user.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="activate">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Edit User Modal -->
+                            <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Edit User: {{ user.username }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{% url 'payments:admin_edit_user' user.id %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="edit_first_name{{ user.id }}">First Name</label>
+                                                    <input type="text" class="form-control" id="edit_first_name{{ user.id }}" name="first_name" value="{{ user.first_name }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="edit_last_name{{ user.id }}">Last Name</label>
+                                                    <input type="text" class="form-control" id="edit_last_name{{ user.id }}" name="last_name" value="{{ user.last_name }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="edit_email{{ user.id }}">Email</label>
+                                                    <input type="email" class="form-control" id="edit_email{{ user.id }}" name="email" value="{{ user.email }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="edit_user_type{{ user.id }}">User Type</label>
+                                                    <select class="form-select" id="edit_user_type{{ user.id }}" name="user_type">
+                                                        <option value="staff" {% if user.is_staff and not user.is_superuser %}selected{% endif %}>Staff</option>
+                                                        <option value="admin" {% if user.is_staff and not user.is_superuser %}selected{% endif %}>Admin</option>
+                                                        <option value="superuser" {% if user.is_superuser %}selected{% endif %}>Superuser</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="edit_reset_password{{ user.id }}" name="reset_password">
+                                                    <label class="form-check-label" for="edit_reset_password{{ user.id }}">
+                                                        Reset Password
+                                                    </label>
+                                                </div>
+                                                <div class="mb-3 password-container d-none">
+                                                    <label class="form-label" for="edit_password{{ user.id }}">New Password</label>
+                                                    <input type="password" class="form-control" id="edit_password{{ user.id }}" name="password">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Delete User Modal -->
+                            <div class="modal fade" id="deleteUserModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete User</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete the user <strong>{{ user.username }}</strong>?</p>
+                                            <p class="text-danger">This action cannot be undone.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{% url 'payments:admin_delete_user' user.id %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Delete User</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">No admin users found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Import Users Modal -->
+<div class="modal fade" id="importUsersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import Users</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="importUsersForm" method="post" action="{% url 'payments:admin_import_users' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Upload CSV File</label>
+                        <input class="form-control" type="file" id="formFile" name="csv_file" accept=".csv">
+                    </div>
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">CSV Format</h6>
+                        <p class="mb-0">The CSV file should have the following columns:</p>
+                        <ul class="mb-0">
+                            <li>username (required)</li>
+                            <li>email (required)</li>
+                            <li>password (required)</li>
+                            <li>first_name (optional)</li>
+                            <li>last_name (optional)</li>
+                            <li>is_staff (optional, default: True)</li>
+                            <li>is_superuser (optional, default: False)</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="importUsersForm" class="btn btn-primary">Import</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password field visibility when reset password is checked
+        const checkboxes = document.querySelectorAll('input[name="reset_password"]');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const passwordContainer = this.closest('.modal-body').querySelector('.password-container');
+                if (this.checked) {
+                    passwordContainer.classList.remove('d-none');
+                } else {
+                    passwordContainer.classList.add('d-none');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

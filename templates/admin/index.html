@@ -1,0 +1,502 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 1rem 0 rgba(136, 152, 170, .1);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .stats-card {
+        text-align: center;
+        padding: 25px 15px;
+    }
+    
+    .stats-card .icon {
+        font-size: 36px;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+    }
+    
+    .stats-card .number {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: var(--secondary-color);
+    }
+    
+    .stats-card .label {
+        color: #8898aa;
+        font-size: 14px;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .quick-action-btn {
+        background: var(--light-color);
+        border: none;
+        border-radius: 5px;
+        padding: 15px;
+        text-align: center;
+        color: var(--secondary-color);
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .quick-action-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(103, 114, 229, 0.3);
+    }
+    
+    .quick-action-btn .icon {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+    
+    .recent-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .recent-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .recent-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .recent-list .status {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 5px;
+    }
+    
+    .recent-list .status.success {
+        background: rgba(45, 206, 137, 0.2);
+        color: var(--success-color);
+    }
+    
+    .recent-list .status.pending {
+        background: rgba(251, 99, 64, 0.2);
+        color: var(--warning-color);
+    }
+    
+    .recent-list .status.failed {
+        background: rgba(245, 54, 92, 0.2);
+        color: var(--danger-color);
+    }
+    
+    .view-all {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: var(--light-color);
+        color: var(--secondary-color);
+        text-decoration: none;
+        margin-top: 15px;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+    
+    .view-all:hover {
+        background: #e6e9f0;
+    }
+    
+    /* Dashboard Chart */
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+    
+    /* App modules grid */
+    #content-main {
+        float: none;
+        width: 100%;
+    }
+    
+    .app-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .app-item {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 1rem 0 rgba(136, 152, 170, .1);
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+    
+    .app-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .app-item h2 {
+        background: var(--secondary-color) !important;
+        color: white !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        font-size: 16px !important;
+    }
+    
+    .app-item table {
+        width: 100%;
+    }
+    
+    .app-item table td {
+        padding: 10px 15px;
+    }
+    
+    .app-item table th {
+        padding: 10px 15px;
+    }
+    
+    /* Font icons */
+    .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+    }
+</style>
+<!-- Include Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- Include Chart.js for dashboard charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <!-- Dashboard Widgets -->
+    <div class="dashboard-container">
+        <!-- Stats Cards -->
+        <div class="card stats-card">
+            <div class="icon">💰</div>
+            <div class="number" id="total-transactions">{{ total_transactions|default:"0" }}</div>
+            <div class="label">Total Transactions</div>
+        </div>
+        
+        <div class="card stats-card">
+            <div class="icon">👥</div>
+            <div class="number" id="total-customers">{{ total_customers|default:"0" }}</div>
+            <div class="label">Total Customers</div>
+        </div>
+        
+        <div class="card stats-card">
+            <div class="icon">📈</div>
+            <div class="number" id="success-rate">{{ success_rate|default:"0%" }}</div>
+            <div class="label">Success Rate</div>
+        </div>
+        
+        <div class="card stats-card">
+            <div class="icon">💵</div>
+            <div class="number" id="total-revenue">{{ total_revenue|default:"₦0" }}</div>
+            <div class="label">Total Revenue</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-container">
+        <!-- Recent Transactions -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Transactions</h3>
+            </div>
+            <div class="card-body">
+                <ul class="recent-list" id="recent-transactions">
+                    <li>Loading recent transactions...</li>
+                </ul>
+                <a href="{% url 'admin:payments_transaction_changelist' %}" class="view-all">View All Transactions</a>
+            </div>
+        </div>
+        
+        <!-- Revenue Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Revenue Overview</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-container">
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a href="{% url 'admin:payments_customer_add' %}" class="quick-action-btn">
+                        <span class="material-icons">person_add</span>
+                        Add Customer
+                    </a>
+                    <a href="{% url 'admin:payments_transaction_add' %}" class="quick-action-btn">
+                        <span class="material-icons">add_circle</span>
+                        New Transaction
+                    </a>
+                    <a href="{% url 'admin:payments_paymentplan_add' %}" class="quick-action-btn">
+                        <span class="material-icons">subscriptions</span>
+                        Create Plan
+                    </a>
+                    <a href="{% url 'admin:payments_subscription_add' %}" class="quick-action-btn">
+                        <span class="material-icons">payments</span>
+                        New Subscription
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Customers -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Customers</h3>
+            </div>
+            <div class="card-body">
+                <ul class="recent-list" id="recent-customers">
+                    <li>Loading recent customers...</li>
+                </ul>
+                <a href="{% url 'admin:payments_customer_changelist' %}" class="view-all">View All Customers</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- App Modules -->
+    <h2>Applications</h2>
+    <div class="app-list">
+        {% for app in app_list %}
+            <div class="app-item">
+                <h2>{{ app.name }}</h2>
+                <table>
+                    {% for model in app.models %}
+                        <tr>
+                            <th scope="row">
+                                {% if model.admin_url %}
+                                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                                {% else %}
+                                    {{ model.name }}
+                                {% endif %}
+                            </th>
+                            <td>
+                                {% if model.add_url %}
+                                    <a href="{{ model.add_url }}" class="addlink">Add</a>
+                                {% endif %}
+                                {% if model.admin_url and model.view_only %}
+                                    <a href="{{ model.admin_url }}" class="viewlink">View</a>
+                                {% endif %}
+                                {% if model.admin_url and not model.view_only %}
+                                    <a href="{{ model.admin_url }}" class="changelink">Change</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% empty %}
+            <p>No applications available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JavaScript for Dashboard -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch dashboard data from our API
+        fetchDashboardData();
+        
+        // Initialize chart (data will be populated by API response)
+        initializeRevenueChart();
+    });
+    
+    let revenueChart;
+    
+    function fetchDashboardData() {
+        fetch('/api/admin/dashboard-data/')
+            .then(response => response.json())
+            .then(data => {
+                // Update dashboard stats
+                document.getElementById('total-transactions').textContent = data.stats.total_transactions;
+                document.getElementById('total-customers').textContent = data.stats.total_customers;
+                document.getElementById('success-rate').textContent = data.stats.success_rate;
+                document.getElementById('total-revenue').textContent = data.stats.total_revenue;
+                
+                // Update recent transactions
+                const transactionsHTML = data.recent_transactions.map(tx => {
+                    return `<li>
+                        <strong>${tx.reference}</strong> - ${tx.email} - ${tx.amount}
+                        <span class="status ${tx.status}">${tx.status}</span>
+                    </li>`;
+                }).join('');
+                
+                document.getElementById('recent-transactions').innerHTML = 
+                    transactionsHTML || '<li>No recent transactions found</li>';
+                
+                // Update recent customers
+                const customersHTML = data.recent_customers.map(customer => {
+                    return `<li>
+                        <strong>${customer.name}</strong> - ${customer.email}
+                        <small style="color: #8898aa; float: right;">${customer.date}</small>
+                    </li>`;
+                }).join('');
+                
+                document.getElementById('recent-customers').innerHTML = 
+                    customersHTML || '<li>No recent customers found</li>';
+                
+                // Update chart with real data
+                updateRevenueChart(data.revenue_chart.labels, data.revenue_chart.data);
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+                
+                // Show error messages in widgets
+                document.getElementById('recent-transactions').innerHTML = 
+                    '<li>Error loading transactions data</li>';
+                document.getElementById('recent-customers').innerHTML = 
+                    '<li>Error loading customers data</li>';
+            });
+    }
+    
+    function initializeRevenueChart() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        
+        revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Revenue (₦)',
+                    data: [],
+                    backgroundColor: 'rgba(103, 114, 229, 0.2)',
+                    borderColor: '#6772E5',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₦' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateRevenueChart(labels, data) {
+        if (revenueChart) {
+            revenueChart.data.labels = labels;
+            revenueChart.data.datasets[0].data = data;
+            revenueChart.update();
+        }
+    }
+</script>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>Recent Actions</h2>
+        <div id="recent-actions">
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+                <p>None available</p>
+            {% else %}
+                <ul class="actionlist">
+                    {% for entry in admin_log %}
+                        <li class="{% if entry.is_addition %}addlink{% elif entry.is_change %}changelink{% elif entry.is_deletion %}deletelink{% endif %}">
+                            {% if entry.is_deletion or not entry.get_admin_url %}
+                                {{ entry.object_repr }}
+                            {% else %}
+                                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                            {% endif %}
+                            <br/>
+                            {% if entry.content_type %}
+                                <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                            {% else %}
+                                <span class="mini quiet">Unknown content</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

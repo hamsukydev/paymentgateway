@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--dark-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(52, 105, 198, 0.08);
+        }
+        
+        /* Page header */
+        .page-header {
+            text-align: center;
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to right bottom, rgba(52, 105, 198, 0.05), rgba(0, 194, 168, 0.05));
+        }
+        
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Pricing Section */
+        .pricing-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .pricing-toggle {
+            display: flex;
+            padding: 4px;
+            background-color: #f0f4f9;
+            border-radius: 30px;
+            margin: 20px auto 40px;
+            width: 300px;
+            position: relative;
+        }
+        
+        .pricing-toggle-btn {
+            flex: 1;
+            border: none;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 30px;
+            font-size: 15px;
+            background: transparent;
+            color: var(--text-color);
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+        
+        .pricing-toggle-btn.active {
+            color: white;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: var(--primary-color);
+            border-radius: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-slider.monthly {
+            transform: translateX(0);
+        }
+        
+        .toggle-slider.annual {
+            transform: translateX(100%);
+        }
+        
+        .pricing-plans {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+        
+        .pricing-card {
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pricing-card.popular {
+            border: 2px solid var(--primary-color);
+        }
+        
+        .pricing-card.popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: 12px;
+            right: -35px;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 40px;
+            font-size: 12px;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+        
+        .plan-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+        }
+        
+        .plan-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+        
+        .plan-price small {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .plan-billing {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            margin-bottom: 15px;
+            padding-left: 28px;
+            position: relative;
+        }
+        
+        .plan-features li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--success-color);
+        }
+        
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Enterprise Section */
+        .enterprise-section {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 60px 0;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 80px;
+        }
+        
+        .enterprise-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        
+        .enterprise-text {
+            flex: 1;
+        }
+        
+        .enterprise-text h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .enterprise-text p {
+            font-size: 16px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .btn-light {
+            background: white;
+            color: var(--primary-color);
+        }
+        
+        .btn-light:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            padding: 60px 0;
+        }
+        
+        .faq-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .faq-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .faq-header p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 20px;
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background-color: #f9fbfd;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 20px;
+            max-height: 300px;
+        }
+        
+        .faq-question i {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .enterprise-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .pricing-card {
+                max-width: none;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .page-header h1 {
+                font-size: 32px;
+            }
+            
+            .pricing-plans {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pricing-toggle {
+                width: 260px;
+            }
+            
+            .plan-features {
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <span class="logo-icon"></span>
+                HamsukyPay
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="{% url 'payments:home' %}">Home</a></li>
+                <li><a href="{% url 'payments:solutions' %}">Solutions</a></li>
+                <li><a href="{% url 'payments:pricing' %}">Pricing</a></li>
+                <li><a href="{% url 'payments:merchant_api_docs' %}">Developers</a></li>
+            </ul>
+            
+            <div class="nav-buttons">
+                <a href="{% url 'payments:merchant_login' %}" class="btn btn-outline">Log in</a>
+                <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary">Create Account</a>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Simple, Transparent Pricing</h1>
+            <p>Choose the plan that fits your business needs with no hidden fees.</p>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section class="section">
+        <div class="container">
+            <div class="pricing-toggle">
+                <button class="pricing-toggle-btn active" id="monthly-btn">Monthly</button>
+                <button class="pricing-toggle-btn" id="annual-btn">Annual</button>
+                <span class="toggle-slider monthly"></span>
+            </div>
+            
+            <div class="pricing-plans">
+                <div class="pricing-card">
+                    <h3 class="plan-name">Starter</h3>
+                    <div class="plan-price monthly-price">₦10,000<small>/mo</small></div>
+                    <div class="plan-price annual-price" style="display: none;">₦96,000<small>/year</small></div>
+                    <p class="plan-billing annual-save" style="display: none;">Save ₦24,000 yearly</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 1.8% + ₦100 per successful transaction</li>
+                        <li><i class="fas fa-check"></i> Accept local cards & bank transfers</li>
+                        <li><i class="fas fa-check"></i> Email support</li>
+                        <li><i class="fas fa-check"></i> Basic analytics</li>
+                        <li><i class="fas fa-check"></i> 1 team member</li>
+                    </ul>
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-outline btn-lg btn-block">Get Started</a>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <h3 class="plan-name">Business</h3>
+                    <div class="plan-price monthly-price">₦35,000<small>/mo</small></div>
+                    <div class="plan-price annual-price" style="display: none;">₦336,000<small>/year</small></div>
+                    <p class="plan-billing annual-save" style="display: none;">Save ₦84,000 yearly</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 1.5% + ₦100 per successful transaction</li>
+                        <li><i class="fas fa-check"></i> Accept all payment methods</li>
+                        <li><i class="fas fa-check"></i> Priority email & chat support</li>
+                        <li><i class="fas fa-check"></i> Advanced analytics & reporting</li>
+                        <li><i class="fas fa-check"></i> 5 team members</li>
+                        <li><i class="fas fa-check"></i> Subscription management</li>
+                        <li><i class="fas fa-check"></i> Invoice generation</li>
+                    </ul>
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary btn-lg btn-block">Get Started</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3 class="plan-name">Professional</h3>
+                    <div class="plan-price monthly-price">₦80,000<small>/mo</small></div>
+                    <div class="plan-price annual-price" style="display: none;">₦768,000<small>/year</small></div>
+                    <p class="plan-billing annual-save" style="display: none;">Save ₦192,000 yearly</p>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 1.2% + ₦100 per successful transaction</li>
+                        <li><i class="fas fa-check"></i> All Business plan features</li>
+                        <li><i class="fas fa-check"></i> 24/7 phone & premium support</li>
+                        <li><i class="fas fa-check"></i> Custom checkout experience</li>
+                        <li><i class="fas fa-check"></i> Unlimited team members</li>
+                        <li><i class="fas fa-check"></i> Automated reconciliation</li>
+                        <li><i class="fas fa-check"></i> Dedicated account manager</li>
+                    </ul>
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-outline btn-lg btn-block">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Enterprise Section -->
+    <section class="section">
+        <div class="container">
+            <div class="enterprise-section">
+                <div class="container">
+                    <div class="enterprise-content">
+                        <div class="enterprise-text">
+                            <h2>Enterprise Solutions</h2>
+                            <p>Custom pricing for large businesses with high volume transactions. Get tailored solutions, dedicated support, and competitive rates.</p>
+                            <a href="{% url 'payments:merchant_register' %}" class="btn btn-light">Contact Sales</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="faq-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Get answers to common questions about our pricing and payment services.</p>
+            </div>
+            
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What payment methods can I accept with HamsukyPay?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>HamsukyPay allows you to accept payments via credit/debit cards, bank transfers, USSD, QR codes, and mobile money options like MTN Mobile Money, Airtel Money, and others. The specific payment methods available depend on your subscription plan.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Are there any hidden fees?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, we believe in transparent pricing. The fees listed are the only fees you'll pay. There are no setup fees, monthly maintenance fees, or hidden charges. You only pay the subscription fee and the per-transaction fee for successful transactions.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do refunds work?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can issue full or partial refunds to your customers through our dashboard or API. For full refunds, the transaction fee is also refunded. For partial refunds, the transaction fee is not refunded. Refunds are processed within 5-7 business days depending on the customer's bank.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I upgrade or downgrade my plan?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can upgrade or downgrade your plan at any time from your merchant dashboard. When upgrading, you'll be charged the prorated difference for the remainder of your billing cycle. When downgrading, the new rate will apply at the start of your next billing cycle.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How long does it take to receive my payments?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>For standard plans, settlements are made within 24-48 hours (excluding weekends and holidays). Business and Professional plans have the option for T+1 settlements (next business day). Enterprise customers can negotiate custom settlement terms including same-day settlements.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">Payments</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Invoicing</a></li>
+                        <li><a href="{% url 'payments:merchant_dashboard' %}">Subscriptions</a></li>
+                        <li><a href="#" onclick="alert('Please enter a reference to view checkout page')">Checkout</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Solutions</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:solutions' %}#ecommerce">Ecommerce</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#marketplaces">Marketplaces</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#mobile-apps">Mobile Apps</a></li>
+                        <li><a href="{% url 'payments:solutions' %}#educational">Educational Institutions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Developers</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Documentation</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">API Reference</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">SDKs & Libraries</a></li>
+                        <li><a href="{% url 'payments:merchant_api_docs' %}">Developer Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'payments:home' %}">About Us</a></li>
+                        <li><a href="{% url 'payments:home' %}">Careers</a></li>
+                        <li><a href="{% url 'payments:home' %}">Blog</a></li>
+                        <li><a href="{% url 'payments:merchant_settings' %}">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 HamsukyPay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Pricing toggle functionality
+        const monthlyBtn = document.getElementById('monthly-btn');
+        const annualBtn = document.getElementById('annual-btn');
+        const toggleSlider = document.querySelector('.toggle-slider');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const annualPrices = document.querySelectorAll('.annual-price');
+        const annualSaves = document.querySelectorAll('.annual-save');
+        
+        monthlyBtn.addEventListener('click', function() {
+            monthlyBtn.classList.add('active');
+            annualBtn.classList.remove('active');
+            toggleSlider.classList.remove('annual');
+            toggleSlider.classList.add('monthly');
+            
+            monthlyPrices.forEach(price => price.style.display = 'block');
+            annualPrices.forEach(price => price.style.display = 'none');
+            annualSaves.forEach(save => save.style.display = 'none');
+        });
+        
+        annualBtn.addEventListener('click', function() {
+            annualBtn.classList.add('active');
+            monthlyBtn.classList.remove('active');
+            toggleSlider.classList.remove('monthly');
+            toggleSlider.classList.add('annual');
+            
+            monthlyPrices.forEach(price => price.style.display = 'none');
+            annualPrices.forEach(price => price.style.display = 'block');
+            annualSaves.forEach(save => save.style.display = 'block');
+        });
+        
+        // FAQ functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            
+            question.addEventListener('click', () => {
+                // Close all other FAQs
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                
+                // Toggle this FAQ
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

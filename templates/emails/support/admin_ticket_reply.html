@@ -1,0 +1,68 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}New Reply on Support Ticket #{{ ticket.ticket_id }}{% endblock %}
+
+{% block content %}
+<h1>New Merchant Reply</h1>
+
+<p>{{ ticket.merchant.business_name }} has replied to support ticket #{{ ticket.ticket_id }}.</p>
+
+<div class="ticket-info">
+    <table>
+        <tr>
+            <td><strong>Ticket ID:</strong></td>
+            <td class="ticket-id">{{ ticket.ticket_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Subject:</strong></td>
+            <td>{{ ticket.subject }}</td>
+        </tr>
+        <tr>
+            <td><strong>Priority:</strong></td>
+            <td>
+                {% if ticket.priority == 'urgent' %}
+                <span class="urgent-priority">Urgent</span>
+                {% elif ticket.priority == 'high' %}
+                <span class="high-priority">High</span>
+                {% elif ticket.priority == 'medium' %}
+                <span class="medium-priority">Medium</span>
+                {% else %}
+                <span>Low</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Status:</strong></td>
+            <td>{{ ticket.get_status_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Reply Time:</strong></td>
+            <td>{{ reply.created_at|date:"F j, Y, g:i a" }}</td>
+        </tr>
+        {% if ticket.assigned_to %}
+        <tr>
+            <td><strong>Assigned To:</strong></td>
+            <td>{{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}</td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
+<h2>Merchant's Reply:</h2>
+<p>{{ reply.message }}</p>
+
+{% if reply.attachment %}
+<p><strong>Attachment:</strong> The merchant has included an attachment with this reply.</p>
+{% endif %}
+
+<p>Please respond to this ticket promptly{% if ticket.priority == 'urgent' or ticket.priority == 'high' %}, as it requires immediate attention{% endif %}.</p>
+
+<a href="{{ ticket_url }}" class="btn">View Ticket</a>
+
+<h2>Merchant Information:</h2>
+<p>
+    <strong>Business Name:</strong> {{ ticket.merchant.business_name }}<br>
+    <strong>Email:</strong> {{ ticket.merchant.business_email }}<br>
+    <strong>Phone:</strong> {{ ticket.merchant.business_phone }}<br>
+</p>
+{% endblock %}

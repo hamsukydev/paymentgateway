@@ -1,0 +1,218 @@
+{% extends "payments/merchant_base.html" %}
+
+{% block title %}Ticket #{{ ticket.ticket_id }} - HamsukyPay{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Back button and header -->
+    <div class="row mb-3">
+        <div class="col">
+            <a href="{% url 'payments:support_tickets_list' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Tickets
+            </a>
+            <h1 class="h3 mb-0 text-gray-800">
+                Ticket #{{ ticket.ticket_id }}: {{ ticket.subject }}
+            </h1>
+            <div class="mt-2">
+                <span class="badge badge-pill 
+                    {% if ticket.status == 'open' %}badge-warning
+                    {% elif ticket.status == 'in_progress' %}badge-info
+                    {% elif ticket.status == 'resolved' %}badge-success
+                    {% elif ticket.status == 'closed' %}badge-secondary{% endif %}">
+                    {{ ticket.get_status_display }}
+                </span>
+                <span class="badge badge-pill 
+                    {% if ticket.priority == 'low' %}badge-secondary
+                    {% elif ticket.priority == 'medium' %}badge-info
+                    {% elif ticket.priority == 'high' %}badge-warning
+                    {% elif ticket.priority == 'urgent' %}badge-danger{% endif %}">
+                    {{ ticket.get_priority_display }} Priority
+                </span>
+                <span class="badge badge-pill badge-primary">
+                    {{ ticket.get_ticket_type_display }}
+                </span>
+                <small class="text-muted ml-2">Created: {{ ticket.created_at|date:"F d, Y H:i" }}</small>
+            </div>
+        </div>
+        <div class="col-auto">
+            {% if ticket.status != 'closed' %}
+                <form method="post" action="{% url 'payments:update_ticket_status' ticket_id=ticket.ticket_id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="closed">
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-times-circle"></i> Close Ticket
+                    </button>
+                </form>
+            {% endif %}
+            {% if ticket.status == 'closed' %}
+                <form method="post" action="{% url 'payments:update_ticket_status' ticket_id=ticket.ticket_id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="open">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-redo"></i> Reopen Ticket
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main ticket information -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Original Message</h6>
+        </div>
+        <div class="card-body">
+            <div class="d-flex">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="avatar-circle">
+                        <span class="initials">{{ ticket.merchant.user.username|slice:":2"|upper }}</span>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mt-0">{{ ticket.merchant.business_name }}</h6>
+                    <p class="text-muted small">
+                        {{ ticket.created_at|date:"F d, Y H:i" }}
+                    </p>
+                    <div class="ticket-message">
+                        {{ ticket.description|linebreaks }}
+                    </div>
+                    {% if ticket.attachment %}
+                        <div class="mt-3 attachment-preview">
+                            <strong><i class="fas fa-paperclip"></i> Attachment:</strong>
+                            <a href="{{ ticket.attachment.url }}" target="_blank" class="ml-2">
+                                {{ ticket.attachment.name|slice:"20:" }}
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversation thread -->
+    {% if replies %}
+        <h5 class="mt-4 mb-3">Conversation History</h5>
+        {% for reply in replies %}
+            <div class="card shadow mb-4 {% if reply.is_staff %}border-left-primary{% else %}border-left-success{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="avatar-circle {% if reply.is_staff %}bg-primary{% else %}bg-success{% endif %}">
+                                <span class="initials">
+                                    {% if reply.is_staff %}
+                                        SP
+                                    {% else %}
+                                        {{ ticket.merchant.user.username|slice:":2"|upper }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mt-0">
+                                {% if reply.is_staff %}
+                                    HamsukyPay Support
+                                {% else %}
+                                    {{ ticket.merchant.business_name }}
+                                {% endif %}
+                            </h6>
+                            <p class="text-muted small">
+                                {{ reply.created_at|date:"F d, Y H:i" }}
+                            </p>
+                            <div class="ticket-message">
+                                {{ reply.message|linebreaks }}
+                            </div>
+                            {% if reply.attachment %}
+                                <div class="mt-3 attachment-preview">
+                                    <strong><i class="fas fa-paperclip"></i> Attachment:</strong>
+                                    <a href="{{ reply.attachment.url }}" target="_blank" class="ml-2">
+                                        {{ reply.attachment.name|slice:"20:" }}
+                                        <i class="fas fa-external-link-alt ml-1"></i>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Reply form -->
+    {% if ticket.status != 'closed' %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Reply to this ticket</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'payments:reply_to_ticket' ticket_id=ticket.ticket_id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="message">Your Message</label>
+                        <textarea name="message" id="message" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="attachment">Attachment (Optional)</label>
+                        <div class="custom-file">
+                            <input type="file" name="attachment" class="custom-file-input" id="attachment">
+                            <label class="custom-file-label" for="attachment">Choose file</label>
+                        </div>
+                        <small class="form-text text-muted">
+                            Supported formats: PDF, JPG, PNG, GIF (Max 5MB)
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Reply
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-secondary mt-4">
+            <i class="fas fa-lock mr-2"></i> This ticket is closed. If you need further assistance, please reopen this ticket or create a new one.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .ticket-message {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 18px;
+    }
+    
+    .attachment-preview {
+        background-color: #f8f9fa;
+        padding: 8px 15px;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Update the file input label when a file is selected
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    });
+</script>
+{% endblock %}

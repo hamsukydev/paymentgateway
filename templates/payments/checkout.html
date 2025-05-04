@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Payment - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .merchant-logo {
+            position: absolute;
+            left: 0;
+            height: 40px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        
+        .powered-by {
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            font-size: 14px;
+            position: absolute;
+            right: 0;
+        }
+        
+        .powered-by-logo {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .logo-icon-small {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            position: relative;
+        }
+        
+        .logo-icon-small::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 5px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .checkout-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .payment-details {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .order-summary {
+            width: 350px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 24px;
+            align-self: flex-start;
+        }
+        
+        .summary-header {
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+        }
+        
+        .merchant-name {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .summary-details {
+            margin-bottom: 20px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-item-label {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .summary-item-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .summary-total {
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .summary-total-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .summary-total-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .payment-card-header {
+            margin-bottom: 20px;
+        }
+        
+        .payment-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 6px;
+        }
+        
+        .payment-card-subtitle {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .payment-method-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 130px;
+        }
+        
+        .payment-method-option:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .payment-method-option.active {
+            border-color: var(--primary-color);
+            background-color: rgba(52, 105, 198, 0.05);
+        }
+        
+        .payment-method-radio {
+            margin-right: 10px;
+        }
+        
+        .payment-method-icon {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .payment-method-label {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 15px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 105, 198, 0.2);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-color);
+            margin-top: 6px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .secure-badge i {
+            color: var(--success-color);
+            margin-right: 8px;
+        }
+        
+        .card-icons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 28px;
+            border-radius: 4px;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-icon img {
+            max-width: 32px;
+            max-height: 20px;
+        }
+        
+        /* Bank transfer section */
+        .bank-details {
+            display: none;
+        }
+        
+        .bank-details.active {
+            display: block;
+        }
+        
+        .bank-instruction {
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .bank-info {
+            background-color: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .bank-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .bank-info-label {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .bank-info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .copy-button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+        }
+        
+        .copy-button:hover {
+            text-decoration: underline;
+        }
+        
+        /* USSD section */
+        .ussd-details {
+            display: none;
+        }
+        
+        .ussd-details.active {
+            display: block;
+        }
+        
+        .ussd-code {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+            text-align: center;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+        
+        /* Payment form sections */
+        .payment-form-section {
+            display: none;
+        }
+        
+        .payment-form-section.active {
+            display: block;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .checkout-container {
+                flex-direction: column-reverse;
+            }
+            
+            .order-summary {
+                width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .merchant-logo, .powered-by {
+                position: static;
+            }
+        }
+        
+        /* Loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spinner 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                {% if merchant.logo %}
+                <img src="{{ merchant.logo.url }}" alt="{{ merchant.business_name }}" class="merchant-logo">
+                {% endif %}
+                
+                <h1 class="checkout-title">Checkout</h1>
+                
+                <div class="powered-by">
+                    Powered by 
+                    <span class="powered-by-logo">
+                        <span class="logo-icon-small"></span>
+                        HamsukyPay
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="checkout-container">
+            <div class="payment-details">
+                <div class="payment-card">
+                    <div class="payment-card-header">
+                        <h2 class="payment-card-title">Select Payment Method</h2>
+                        <p class="payment-card-subtitle">Choose how you'd like to pay</p>
+                    </div>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method-option active" data-method="card">
+                            <input type="radio" name="payment_method" id="card" value="card" checked class="payment-method-radio">
+                            <i class="fas fa-credit-card payment-method-icon"></i>
+                            <label for="card" class="payment-method-label">Card</label>
+                        </div>
+                        
+                        <div class="payment-method-option" data-method="bank">
+                            <input type="radio" name="payment_method" id="bank" value="bank" class="payment-method-radio">
+                            <i class="fas fa-university payment-method-icon"></i>
+                            <label for="bank" class="payment-method-label">Bank Transfer</label>
+                        </div>
+                        
+                        <div class="payment-method-option" data-method="ussd">
+                            <input type="radio" name="payment_method" id="ussd" value="ussd" class="payment-method-radio">
+                            <i class="fas fa-mobile-alt payment-method-icon"></i>
+                            <label for="ussd" class="payment-method-label">USSD</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Payment Form -->
+                    <div class="payment-form-section card-details active">
+                        <form id="card-payment-form">
+                            <div class="form-group">
+                                <label for="card_number" class="form-label">Card Number</label>
+                                <input type="text" id="card_number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiry" class="form-label">Expiry Date</label>
+                                    <input type="text" id="expiry" class="form-control" placeholder="MM / YY" maxlength="5">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cvv" class="form-label">CVV</label>
+                                    <input type="text" id="cvv" class="form-control" placeholder="123" maxlength="4">
+                                    <p class="form-hint">3 or 4 digit security code on the back of your card</p>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="card_name" class="form-label">Name on Card</label>
+                                <input type="text" id="card_name" class="form-control" placeholder="John Doe">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Pay {{ transaction.amount|floatformat:2 }} {{ transaction.currency }}</button>
+                            
+                            <div class="card-icons">
+                                <div class="card-icon"><i class="fab fa-cc-visa fa-lg"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-mastercard fa-lg"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-amex fa-lg"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-discover fa-lg"></i></div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Bank Transfer Payment Section -->
+                    <div class="payment-form-section bank-details">
+                        <p class="bank-instruction">Make a transfer to the account below:</p>
+                        
+                        <div class="bank-info">
+                            <div class="bank-info-item">
+                                <span class="bank-info-label">Bank Name:</span>
+                                <span class="bank-info-value">Demo Bank</span>
+                            </div>
+                            
+                            <div class="bank-info-item">
+                                <span class="bank-info-label">Account Number:</span>
+                                <div>
+                                    <span class="bank-info-value">1234567890</span>
+                                    <button class="copy-button" data-copy="1234567890">Copy</button>
+                                </div>
+                            </div>
+                            
+                            <div class="bank-info-item">
+                                <span class="bank-info-label">Account Name:</span>
+                                <span class="bank-info-value">HamsukyPay Merchant</span>
+                            </div>
+                            
+                            <div class="bank-info-item">
+                                <span class="bank-info-label">Reference:</span>
+                                <div>
+                                    <span class="bank-info-value">{{ transaction.reference }}</span>
+                                    <button class="copy-button" data-copy="{{ transaction.reference }}">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="bank-instruction">
+                            <i class="fas fa-info-circle"></i> Use the reference code above when making your transfer so we can identify your payment.
+                        </p>
+                        
+                        <button id="check-transfer" class="btn btn-primary">I've made the transfer</button>
+                    </div>
+                    
+                    <!-- USSD Payment Section -->
+                    <div class="payment-form-section ussd-details">
+                        <p class="bank-instruction">Dial this code on your mobile phone:</p>
+                        
+                        <div class="ussd-code">*999*{{ transaction.reference|slice:"-6:" }}#</div>
+                        
+                        <p class="bank-instruction">
+                            <i class="fas fa-info-circle"></i> Follow the instructions on your phone to complete the payment.
+                        </p>
+                        
+                        <button id="check-ussd" class="btn btn-primary">I've completed the USSD payment</button>
+                    </div>
+                    
+                    <div class="secure-badge">
+                        <i class="fas fa-lock"></i> Secure and encrypted payment
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <div class="summary-header">
+                    <h3 class="summary-title">Order Summary</h3>
+                    {% if merchant %}
+                    <p class="merchant-name">{{ merchant.business_name }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="summary-details">
+                    <div class="summary-item">
+                        <span class="summary-item-label">Reference</span>
+                        <span class="summary-item-value">{{ transaction.reference }}</span>
+                    </div>
+                    
+                    {% if transaction.description %}
+                    <div class="summary-item">
+                        <span class="summary-item-label">Description</span>
+                        <span class="summary-item-value">{{ transaction.description }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-item">
+                        <span class="summary-item-label">Date</span>
+                        <span class="summary-item-value">{{ transaction.created_at|date:"j M Y" }}</span>
+                    </div>
+                </div>
+                
+                <div class="summary-total">
+                    <span class="summary-total-label">Total</span>
+                    <span class="summary-total-value">{{ transaction.amount|floatformat:2 }} {{ transaction.currency }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Processing your payment...</p>
+        <p class="loading-text">Please do not close this window</p>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                &copy; 2025 HamsukyPay. All rights reserved. | Secure payments by HamsukyPay
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Payment method selection
+        const paymentOptions = document.querySelectorAll('.payment-method-option');
+        const paymentForms = document.querySelectorAll('.payment-form-section');
+        
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Update radio button
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Update active class
+                paymentOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding form
+                const method = this.dataset.method;
+                paymentForms.forEach(form => form.classList.remove('active'));
+                document.querySelector(`.${method}-details`).classList.add('active');
+            });
+        });
+        
+        // Card number formatting
+        const cardNumberInput = document.getElementById('card_number');
+        cardNumberInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            this.value = formattedValue;
+        });
+        
+        // Expiry date formatting
+        const expiryInput = document.getElementById('expiry');
+        expiryInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            
+            if (value.length > 2) {
+                value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+            }
+            
+            this.value = value;
+        });
+        
+        // Form submission
+        const cardForm = document.getElementById('card-payment-form');
+        cardForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading overlay
+            document.getElementById('loading-overlay').classList.add('active');
+            
+            // Get form values
+            const cardNumber = document.getElementById('card_number').value.replace(/\s/g, '');
+            const expiry = document.getElementById('expiry').value;
+            const expiryParts = expiry.split(' / ');
+            const expiryMonth = expiryParts[0];
+            const expiryYear = expiryParts[1];
+            const cvv = document.getElementById('cvv').value;
+            const cardName = document.getElementById('card_name').value;
+            
+            // Prepare payment data
+            const paymentData = {
+                transaction_reference: "{{ transaction.reference }}",
+                payment_method: "credit_card",
+                card: {
+                    number: cardNumber,
+                    expiry_month: expiryMonth,
+                    expiry_year: expiryYear,
+                    cvv: cvv,
+                    name: cardName
+                }
+            };
+            
+            // Send to backend
+            fetch('/api/process-payment/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(paymentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Redirect to success page
+                    window.location.href = `/payments/success/?reference=${data.reference}`;
+                } else {
+                    // Hide loading overlay
+                    document.getElementById('loading-overlay').classList.remove('active');
+                    alert('Payment failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-overlay').classList.remove('active');
+                alert('An error occurred while processing your payment. Please try again.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // Bank transfer verification
+        document.getElementById('check-transfer').addEventListener('click', function() {
+            document.getElementById('loading-overlay').classList.add('active');
+            
+            // Check payment status
+            fetch(`/api/verify-payment/?reference={{ transaction.reference }}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-overlay').classList.remove('active');
+                
+                if (data.status === 'success' && data.data.status === 'success') {
+                    // Redirect to success page
+                    window.location.href = `/payments/success/?reference={{ transaction.reference }}`;
+                } else {
+                    alert('Payment not confirmed yet. Please wait a few minutes and try again.');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-overlay').classList.remove('active');
+                alert('An error occurred while verifying your payment. Please try again.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // USSD verification
+        document.getElementById('check-ussd').addEventListener('click', function() {
+            document.getElementById('loading-overlay').classList.add('active');
+            
+            // Check payment status (same as bank transfer)
+            fetch(`/api/verify-payment/?reference={{ transaction.reference }}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-overlay').classList.remove('active');
+                
+                if (data.status === 'success' && data.data.status === 'success') {
+                    // Redirect to success page
+                    window.location.href = `/payments/success/?reference={{ transaction.reference }}`;
+                } else {
+                    alert('Payment not confirmed yet. Please wait a few minutes and try again.');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-overlay').classList.remove('active');
+                alert('An error occurred while verifying your payment. Please try again.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // Copy button functionality
+        const copyButtons = document.querySelectorAll('.copy-button');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const textToCopy = this.dataset.copy;
+                
+                // Create temporary input element
+                const temp = document.createElement('input');
+                temp.value = textToCopy;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                
+                // Provide feedback
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 1500);
+            });
+        });
+        
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

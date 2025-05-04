@@ -1,0 +1,874 @@
+{% extends 'payments/base.html' %}
+
+{% block title %}Currency Swap - HamsukyPay{% endblock %}
+
+{% block content %}
+<div class="swap-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <h1 class="hero-title">Quick Currency Swap</h1>
+                    <p class="hero-subtitle">
+                        Convert between 20+ currencies at competitive exchange rates. 
+                        Perfect for international businesses, travelers, and remittance senders.
+                    </p>
+                    <div class="hero-features">
+                        <div class="hero-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>Real-time rates</h3>
+                                <p>Get the most current exchange rates updated every hour</p>
+                            </div>
+                        </div>
+                        <div class="hero-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-globe-africa"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>Multiple currencies</h3>
+                                <p>Support for major world currencies and all African currencies</p>
+                            </div>
+                        </div>
+                        <div class="hero-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="feature-text">
+                                <h3>No hidden fees</h3>
+                                <p>Transparent conversion with no additional charges</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="converter-card">
+                        <div class="card-header">
+                            <h2>Currency Swap</h2>
+                            <p class="rates-update">Rates updated: <span>{% now "F j, Y, g:i a" %}</span></p>
+                        </div>
+                        
+                        {% if error %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endif %}
+                        
+                        <form method="get" action="{% url 'payments:currency_converter' %}" class="swap-form">
+                            <div class="form-group">
+                                <label>You send</label>
+                                <div class="input-amount-wrapper">
+                                    <input type="number" id="amount" name="amount" value="{{ amount }}" class="form-control amount-input" step="0.01" min="0.01" required>
+                                    <select id="from" name="from" class="form-select currency-select" required>
+                                        {% for code, currency in currencies.items %}
+                                            <option value="{{ code }}" {% if code == from_currency %}selected{% endif %}>
+                                                {{ code }} - {{ currency.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="swap-icon-wrapper">
+                                <button type="button" id="swap-button" class="swap-icon-button">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Recipient gets</label>
+                                <div class="input-amount-wrapper recipient-amount">
+                                    <div class="converted-amount-display">
+                                        {% if converted_amount %}
+                                            {{ formatted_result }}
+                                        {% else %}
+                                            0.00
+                                        {% endif %}
+                                    </div>
+                                    <select id="to" name="to" class="form-select currency-select" required>
+                                        {% for code, currency in currencies.items %}
+                                            <option value="{{ code }}" {% if code == to_currency %}selected{% endif %}>
+                                                {{ code }} - {{ currency.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            {% if conversion_rate %}
+                                <div class="rate-info">
+                                    <div class="rate-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        1 {{ from_currency }} = {{ conversion_rate }} {{ to_currency }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <button type="submit" name="convert" value="1" class="btn btn-swap">Get Rate</button>
+                            
+                            {% if converted_amount %}
+                                <a href="#" class="btn btn-secondary btn-proceed">Proceed with Swap</a>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Currency Swap Works</h2>
+                <p>Simple, transparent currency conversion in just a few steps</p>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Enter Amount & Select Currencies</h3>
+                        <p>Choose the amount you want to convert, your source currency (what you have), and the target currency (what you need).</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>View Exchange Rate</h3>
+                        <p>Click "Get Rate" to see the current exchange rate and the exact amount you'll receive after conversion.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Proceed with Swap</h3>
+                        <p>Happy with the rate? Click "Proceed with Swap" to complete your currency conversion transaction.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Receive Funds</h3>
+                        <p>The converted amount is immediately added to your HamsukyPay balance or can be sent directly to your bank account.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Popular Rates Section -->
+    <section class="popular-rates">
+        <div class="container">
+            <div class="section-header">
+                <h2>Today's Popular Exchange Rates</h2>
+                <p>Stay informed with the latest rates for frequently converted currencies</p>
+            </div>
+            
+            <div class="rates-table-container">
+                <table class="rates-table">
+                    <thead>
+                        <tr>
+                            <th>Currency Pair</th>
+                            <th>Rate</th>
+                            <th>Change (24h)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for currency, rate in popular_rates.items %}
+                            <tr>
+                                <td>
+                                    <div class="currency-pair">
+                                        <div class="currency-flag">{{ currency }}</div>
+                                        <div class="currency-info">
+                                            <span class="pair-code">USD/{{ currency }}</span>
+                                            <span class="pair-name">US Dollar to 
+                                                {% for code, currency_info in currencies.items %}
+                                                    {% if code == currency %}
+                                                        {{ currency_info.name }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="rate-value">{{ rate }}</td>
+                                <td class="rate-change {% if forloop.counter|divisibleby:2 %}positive{% else %}negative{% endif %}">
+                                    <i class="fas fa-{% if forloop.counter|divisibleby:2 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                                    {{ forloop.counter|divisibleby:3|yesno:"0.12%,0.08%,0.15%" }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'payments:currency_converter' %}?from=USD&to={{ currency }}&amount=100&convert=1" class="btn-convert-pair">
+                                        Convert
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know about our Currency Swap service</p>
+            </div>
+            
+            <div class="faq-container">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                Are there any fees for using the Currency Swap service?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>No, HamsukyPay doesn't charge any additional fees for using the Currency Swap service. We offer competitive exchange rates that include our margin. What you see is what you get - no hidden charges or surprises.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                How often are the exchange rates updated?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Our exchange rates are updated hourly to ensure you always get the most current rates. The timestamp above the converter shows when the rates were last updated.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                Which currencies does HamsukyPay support for swapping?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>HamsukyPay supports over 20 currencies, including all major world currencies (USD, EUR, GBP) and all major African currencies (NGN, GHS, KES, ZAR, etc.). You can convert between any of these currencies instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                How long does the currency swap process take?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Currency swaps are processed instantly. Once you confirm the transaction, the converted amount is immediately available in your HamsukyPay balance. If you're transferring to a bank account, the processing time depends on your bank's policies (typically 1-3 business days).</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
+                                Is there a minimum or maximum amount I can swap?
+                            </button>
+                        </h2>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>The minimum amount for a currency swap is $1 (or equivalent in other currencies). The maximum amount depends on your account tier: Standard accounts can swap up to $5,000 per day, while Business accounts can swap up to $50,000 per day. For larger amounts, contact our support team.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Swap Currencies?</h2>
+                <p>Create an account or log in to start using our Currency Swap service and enjoy competitive exchange rates with no hidden fees.</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary btn-lg">Sign Up</a>
+                    <a href="{% url 'payments:merchant_login' %}" class="btn btn-outline-light btn-lg">Log In</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Currency Swap Page Styles */
+    .swap-container {
+        color: #2d3748;
+    }
+    
+    .hero-section {
+        padding: 80px 0 60px;
+        background-color: #f8fafc;
+    }
+    
+    .hero-title {
+        font-size: 48px;
+        font-weight: 800;
+        color: #1a202c;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+    
+    .hero-subtitle {
+        font-size: 18px;
+        margin-bottom: 40px;
+        color: #4a5568;
+        line-height: 1.6;
+    }
+    
+    .hero-features {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .hero-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #ebf4ff;
+        color: #3469c6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    
+    .feature-text h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #1a202c;
+    }
+    
+    .feature-text p {
+        font-size: 14px;
+        color: #4a5568;
+        margin-bottom: 0;
+    }
+    
+    /* Converter Card Styles */
+    .converter-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        padding: 30px;
+    }
+    
+    .card-header {
+        margin-bottom: 25px;
+    }
+    
+    .card-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: #1a202c;
+    }
+    
+    .rates-update {
+        font-size: 13px;
+        color: #718096;
+    }
+    
+    .swap-form .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .swap-form label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+    
+    .input-amount-wrapper {
+        display: flex;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .amount-input {
+        flex: 1;
+        border: none;
+        padding: 12px 16px;
+        font-size: 18px;
+        font-weight: 500;
+        color: #1a202c;
+    }
+    
+    .amount-input:focus {
+        outline: none;
+    }
+    
+    .currency-select {
+        width: 180px;
+        border: none;
+        border-left: 1px solid #e2e8f0;
+        padding: 12px;
+        font-weight: 500;
+        color: #1a202c;
+        background-color: #f8fafc;
+    }
+    
+    .currency-select:focus {
+        outline: none;
+    }
+    
+    .converted-amount-display {
+        flex: 1;
+        padding: 12px 16px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #3469c6;
+        background-color: #f8fafc;
+    }
+    
+    .swap-icon-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: -10px 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .swap-icon-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        color: #3469c6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .swap-icon-button:hover {
+        background-color: #3469c6;
+        color: white;
+    }
+    
+    .rate-info {
+        background-color: #f8fafc;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    
+    .rate-text {
+        color: #4a5568;
+    }
+    
+    .rate-text i {
+        margin-right: 5px;
+        color: #3469c6;
+    }
+    
+    .btn-swap {
+        background-color: #3469c6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        width: 100%;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+    }
+    
+    .btn-swap:hover {
+        background-color: #2a569d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 105, 198, 0.2);
+    }
+    
+    .btn-secondary {
+        background-color: #f8fafc;
+        color: #3469c6;
+        border: 1px solid #3469c6;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        width: 100%;
+        text-align: center;
+        display: block;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #ebf4ff;
+    }
+    
+    /* How It Works Section */
+    .how-it-works {
+        padding: 80px 0;
+        background-color: white;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+    
+    .section-header h2 {
+        font-size: 36px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 12px;
+    }
+    
+    .section-header p {
+        font-size: 18px;
+        color: #4a5568;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .steps-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+    
+    .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        width: 45%;
+        min-width: 300px;
+    }
+    
+    .step-number {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #3469c6;
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .step-content h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1a202c;
+    }
+    
+    .step-content p {
+        font-size: 15px;
+        color: #4a5568;
+        margin-bottom: 0;
+    }
+    
+    /* Popular Rates Section */
+    .popular-rates {
+        padding: 80px 0;
+        background-color: #f8fafc;
+    }
+    
+    .rates-table-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .rates-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .rates-table th {
+        font-size: 14px;
+        font-weight: 600;
+        color: #4a5568;
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+    }
+    
+    .rates-table td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 15px;
+    }
+    
+    .rates-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .currency-pair {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .currency-flag {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: #ebf4ff;
+        color: #3469c6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .currency-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .pair-code {
+        font-weight: 600;
+        color: #1a202c;
+    }
+    
+    .pair-name {
+        font-size: 13px;
+        color: #718096;
+    }
+    
+    .rate-value {
+        font-weight: 600;
+        color: #1a202c;
+    }
+    
+    .rate-change {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .rate-change.positive {
+        color: #0ead69;
+    }
+    
+    .rate-change.negative {
+        color: #e53e3e;
+    }
+    
+    .btn-convert-pair {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #ebf4ff;
+        color: #3469c6;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-convert-pair:hover {
+        background-color: #3469c6;
+        color: white;
+    }
+    
+    /* FAQ Section */
+    .faq-section {
+        padding: 80px 0;
+        background-color: white;
+    }
+    
+    .faq-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .accordion-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px !important;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+    
+    .accordion-button {
+        padding: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a202c;
+        background-color: white;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        color: #3469c6;
+        background-color: #ebf4ff;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: none;
+    }
+    
+    .accordion-body {
+        padding: 20px;
+    }
+    
+    .accordion-body p {
+        margin-bottom: 0;
+        color: #4a5568;
+        line-height: 1.6;
+    }
+    
+    /* Call to Action Section */
+    .cta-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #3469c6 0%, #2a569d 100%);
+        color: white;
+    }
+    
+    .cta-content {
+        max-width: 700px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    .cta-content h2 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+    
+    .cta-content p {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+    }
+    
+    .btn-outline-light:hover {
+        background-color: white;
+        color: #3469c6;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .hero-section {
+            padding: 60px 0;
+        }
+        
+        .hero-title {
+            font-size: 36px;
+        }
+        
+        .step {
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 32px;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+        }
+        
+        .steps-container {
+            flex-direction: column;
+        }
+        
+        .step {
+            width: 100%;
+        }
+        
+        .rates-table-container {
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Swap currency functionality
+        const swapButton = document.getElementById('swap-button');
+        const fromSelect = document.getElementById('from');
+        const toSelect = document.getElementById('to');
+        
+        swapButton.addEventListener('click', function() {
+            const tempValue = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = tempValue;
+        });
+        
+        // Bootstrap accordion initialization (if needed)
+        // This is only necessary if you're not using Bootstrap's JS
+        const accordionButtons = document.querySelectorAll('.accordion-button');
+        
+        accordionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+                
+                if (target) {
+                    const isOpen = target.classList.contains('show');
+                    
+                    // Close all accordion items
+                    document.querySelectorAll('.accordion-collapse').forEach(item => {
+                        item.classList.remove('show');
+                    });
+                    
+                    document.querySelectorAll('.accordion-button').forEach(btn => {
+                        btn.classList.add('collapsed');
+                    });
+                    
+                    // If it was closed, open it
+                    if (!isOpen) {
+                        target.classList.add('show');
+                        this.classList.remove('collapsed');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

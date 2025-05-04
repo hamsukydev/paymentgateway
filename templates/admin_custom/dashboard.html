@@ -1,0 +1,928 @@
+{% extends 'admin_custom/base.html' %}
+{% load payment_filters %}
+
+{% block title %}Dashboard - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of your payment system's performance{% endblock %}
+
+{% block styles %}
+<style>
+    /* Dashboard specific styles */
+    .overview-card {
+        border-radius: 0.75rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .overview-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-md);
+    }
+    
+    .quick-stats-card {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: var(--box-shadow);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .quick-stats-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .quick-stats-icon {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        opacity: 0.15;
+    }
+    
+    .quick-stats-primary {
+        background-color: rgba(52, 105, 198, 0.1);
+        color: var(--primary);
+    }
+    
+    .quick-stats-success {
+        background-color: rgba(14, 173, 105, 0.1);
+        color: var(--success);
+    }
+    
+    .quick-stats-info {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+    }
+    
+    .quick-stats-warning {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+    
+    .quick-stats-content {
+        padding: 1.5rem;
+    }
+    
+    .quick-stats-label {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .quick-stats-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+    }
+    
+    .quick-stats-trend {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .quick-stats-trend.up {
+        color: var(--success);
+    }
+    
+    .quick-stats-trend.down {
+        color: var(--danger);
+    }
+    
+    .quick-stats-trend i {
+        margin-right: 0.35rem;
+    }
+    
+    .chart-filters {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .chart-filter {
+        font-size: 0.875rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        background-color: var(--gray-light);
+        color: var(--gray);
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+    
+    .chart-filter.active {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .recent-activity {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .activity-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .activity-icon-transaction {
+        background-color: rgba(52, 105, 198, 0.1);
+        color: var(--primary);
+    }
+    
+    .activity-icon-merchant {
+        background-color: rgba(14, 173, 105, 0.1);
+        color: var (--success);
+    }
+    
+    .activity-icon-alert {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+    }
+    
+    .activity-subtitle {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+    
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+    
+    .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 1200px) {
+        .dashboard-metrics {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dashboard-metrics {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: var(--box-shadow);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .action-button:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-md);
+    }
+    
+    .action-button-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: white;
+        font-size: 1.25rem;
+    }
+    
+    .action-button-title {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .action-button-description {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+    
+    .alert-item {
+        display: flex;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        background-color: var(--gray-light);
+    }
+    
+    .alert-item-warning {
+        background-color: rgba(245, 158, 11, 0.1);
+    }
+    
+    .alert-item-danger {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+    
+    .alert-item-info {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .alert-item-success {
+        background-color: rgba(14, 173, 105, 0.1);
+    }
+    
+    .payment-method-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    
+    .legend-text {
+        font-size: 0.875rem;
+        color: var(--dark);
+        font-weight: 500;
+    }
+    
+    .legend-value {
+        margin-left: auto;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .verification-badge {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+    
+    .verification-pending {
+        background-color: var(--warning);
+    }
+    
+    .verification-verified {
+        background-color: var(--success);
+    }
+    
+    .verification-rejected {
+        background-color: var(--danger);
+    }
+
+    .transaction-table-wrapper {
+        max-height: 400px;
+        overflow-y: auto;
+        margin: 0 -1.5rem;
+    }
+
+    .transaction-table-wrapper table {
+        margin: 0;
+    }
+
+    .transaction-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .transaction-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .transaction-id {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .transaction-email {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Action Buttons -->
+<div class="action-buttons">
+    <a href="{% url 'payments:admin_transactions' %}" class="action-button">
+        <div class="action-button-icon" style="background-color: var(--primary);">
+            <i class="fas fa-file-invoice"></i>
+        </div>
+        <h6 class="action-button-title">Transactions</h6>
+        <p class="action-button-description">View and manage transaction activity</p>
+    </a>
+    
+    <a href="{% url 'payments:admin_merchants' %}" class="action-button">
+        <div class="action-button-icon" style="background-color: var(--success);">
+            <i class="fas fa-store-alt"></i>
+        </div>
+        <h6 class="action-button-title">Merchants</h6>
+        <p class="action-button-description">Manage merchant accounts and verifications</p>
+    </a>
+    
+    <a href="{% url 'payments:admin_settings' %}" class="action-button">
+        <div class="action-button-icon" style="background-color: var(--secondary);">
+            <i class="fas fa-cog"></i>
+        </div>
+        <h6 class="action-button-title">Settings</h6>
+        <p class="action-button-description">Configure system preferences</p>
+    </a>
+</div>
+
+<!-- Overview Stats -->
+<div class="dashboard-metrics">
+    <div class="quick-stats-card">
+        <div class="quick-stats-icon quick-stats-primary">
+            <i class="fas fa-exchange-alt fa-2x"></i>
+        </div>
+        <div class="quick-stats-content">
+            <div class="quick-stats-label">Total Transactions</div>
+            <div class="quick-stats-value">{{ stats.total_transactions }}</div>
+            <div class="quick-stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>8.3% from last week</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quick-stats-card">
+        <div class="quick-stats-icon quick-stats-success">
+            <i class="fas fa-wallet fa-2x"></i>
+        </div>
+        <div class="quick-stats-content">
+            <div class="quick-stats-label">Total Revenue</div>
+            <div class="quick-stats-value">₦{{ stats.total_revenue|floatformat:2 }}</div>
+            <div class="quick-stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>12.7% from last month</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quick-stats-card">
+        <div class="quick-stats-icon quick-stats-info">
+            <i class="fas fa-store fa-2x"></i>
+        </div>
+        <div class="quick-stats-content">
+            <div class="quick-stats-label">Total Merchants</div>
+            <div class="quick-stats-value">{{ stats.total_merchants }}</div>
+            <div class="quick-stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>4.2% from last month</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quick-stats-card">
+        <div class="quick-stats-icon quick-stats-warning">
+            <i class="fas fa-check-circle fa-2x"></i>
+        </div>
+        <div class="quick-stats-content">
+            <div class="quick-stats-label">Success Rate</div>
+            <div class="quick-stats-value">{{ stats.success_rate }}</div>
+            <div class="quick-stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>1.5% from last week</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row">
+    <!-- Revenue Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="card-header-title">Revenue Trend</h6>
+                <div class="card-header-actions">
+                    <div class="chart-filters">
+                        <button type="button" class="chart-filter active" data-period="week">Week</button>
+                        <button type="button" class="chart-filter" data-period="month">Month</button>
+                        <button type="button" class="chart-filter" data-period="year">Year</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Methods Chart -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="card-header-title">Payment Methods</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-center mb-3">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+                <div class="payment-method-legend">
+                    {% for label in payment_methods.labels %}
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: 
+                            {% if forloop.counter == 1 %}#3469c6
+                            {% elif forloop.counter == 2 %}#00c2a8
+                            {% elif forloop.counter == 3 %}#f59e0b
+                            {% elif forloop.counter == 4 %}#ef4444
+                            {% else %}#64748b{% endif %}"></div>
+                            <div class="legend-text">{{ label }}</div>
+                            <div class="legend-value">{{ payment_methods.data|index:forloop.counter0 }}%</div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted">No payment method data available</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Transactions -->
+    <div class="col-lg-7 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="card-header-title">Recent Transactions</h6>
+                <div class="card-header-actions">
+                    <a href="{% url 'payments:admin_transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="transaction-table-wrapper">
+                    <table class="table table-hover transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Details</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>
+                                    <div class="transaction-details">
+                                        <a href="{% url 'payments:admin_transaction_detail' transaction.reference %}" class="transaction-id">
+                                            {{ transaction.reference }}
+                                        </a>
+                                        <span class="transaction-email">{{ transaction.email }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ transaction.currency }} {{ transaction.amount|floatformat:2 }}</strong>
+                                </td>
+                                <td>
+                                    {% if transaction.payment_method %}
+                                        {{ transaction.payment_method }}
+                                    {% else %}
+                                        <span class="text-muted">Not specified</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.status == 'success' %}
+                                        <span class="status-badge status-badge-success">Success</span>
+                                    {% elif transaction.status == 'failed' %}
+                                        <span class="status-badge status-badge-danger">Failed</span>
+                                    {% elif transaction.status == 'pending' %}
+                                        <span class="status-badge status-badge-warning">Pending</span>
+                                    {% else %}
+                                        <span class="status-badge status-badge-secondary">{{ transaction.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="d-block">{{ transaction.created_at|date:"M d, Y" }}</span>
+                                    <small class="text-muted">{{ transaction.created_at|time:"H:i" }}</small>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">No transactions found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Alerts & Recent Activities -->
+    <div class="col-lg-5 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="card-header-title">System Alerts</h6>
+            </div>
+            <div class="card-body">
+                {% for alert in system_alerts %}
+                    <div class="alert-item {% if alert.type == 'warning' %}alert-item-warning{% elif alert.type == 'danger' %}alert-item-danger{% elif alert.type == 'success' %}alert-item-success{% else %}alert-item-info{% endif %} mb-3">
+                        <div class="me-3 {% if alert.type == 'warning' %}text-warning{% elif alert.type == 'danger' %}text-danger{% elif alert.type == 'success' %}text-success{% else %}text-info{% endif %}">
+                            {% if alert.type == 'warning' %}
+                                <i class="fas fa-exclamation-triangle fa-lg"></i>
+                            {% elif alert.type == 'danger' %}
+                                <i class="fas fa-times-circle fa-lg"></i>
+                            {% elif alert.type == 'success' %}
+                                <i class="fas fa-check-circle fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="mb-1 fw-semibold">{{ alert.message }}</p>
+                            <small class="text-muted">{{ alert.timestamp|timesince }} ago</small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4">
+                        <div class="mb-3 text-muted">
+                            <i class="fas fa-bell fa-3x"></i>
+                        </div>
+                        <p class="text-muted mb-0">No alerts at the moment</p>
+                    </div>
+                {% endfor %}
+                
+                <div class="border-top mt-3 pt-3">
+                    <h6 class="fw-semibold mb-3">Pending Tasks</h6>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0 me-3">
+                            <span class="verification-badge verification-pending"></span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-medium">Merchant Verifications</span>
+                                <span class="badge bg-warning">{{ pending_verifications|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0 me-3">
+                            <span class="verification-badge verification-pending"></span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-medium">Flagged Transactions</span>
+                                <span class="badge bg-warning">{{ flagged_transactions|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Merchants and Pending Verifications -->
+<div class="row">
+    <!-- Recently Added Merchants -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-header-title">Recently Added Merchants</h6>
+                <div class="card-header-actions">
+                    <a href="{% url 'payments:admin_merchants' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Business Name</th>
+                                <th>Email</th>
+                                <th>Verification</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for merchant in recent_merchants %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'payments:admin_merchant_detail' merchant.id %}" class="fw-semibold text-decoration-none">
+                                        {{ merchant.business_name }}
+                                    </a>
+                                </td>
+                                <td>{{ merchant.business_email }}</td>
+                                <td>
+                                    {% if merchant.verification_status == 'verified' %}
+                                        <span class="status-badge status-badge-success">Verified</span>
+                                    {% elif merchant.verification_status == 'pending' %}
+                                        <span class="status-badge status-badge-warning">Pending</span>
+                                    {% elif merchant.verification_status == 'rejected' %}
+                                        <span class="status-badge status-badge-danger">Rejected</span>
+                                    {% else %}
+                                        <span class="status-badge status-badge-secondary">Unverified</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ merchant.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No merchants found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Merchant Verifications -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-header-title">Pending Verifications</h6>
+                <div class="card-header-actions">
+                    <a href="{% url 'payments:admin_merchants' %}?verification_status=pending" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Business Name</th>
+                                <th>Type</th>
+                                <th>Country</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for merchant in pending_verifications %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'payments:admin_merchant_detail' merchant.id %}" class="fw-semibold text-decoration-none">
+                                        {{ merchant.business_name }}
+                                    </a>
+                                </td>
+                                <td>{{ merchant.business_type }}</td>
+                                <td>{{ merchant.country }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'payments:admin_merchant_detail' merchant.id %}" class="btn btn-sm btn-outline-primary">Review</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No pending verifications</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: {{ revenue_chart.labels|safe }},
+                datasets: [{
+                    label: 'Revenue',
+                    data: {{ revenue_chart.data|safe }},
+                    backgroundColor: 'rgba(52, 105, 198, 0.1)',
+                    borderColor: '#3469c6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#3469c6',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#1f2b48',
+                        bodyColor: '#64748b',
+                        bodyFont: {
+                            size: 13
+                        },
+                        titleFont: {
+                            size: 15,
+                            weight: 'bold'
+                        },
+                        padding: 12,
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        boxPadding: 3,
+                        usePointStyle: true,
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        displayColors: true,
+                        callbacks: {
+                            // Add currency symbol
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += '₦' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            color: 'rgba(226, 232, 240, 0.6)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₦' + value.toLocaleString();
+                            },
+                            color: '#64748b',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+        
+        // Payment Methods Chart
+        const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+        const paymentMethodsChart = new Chart(paymentMethodsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ payment_methods.labels|safe }},
+                datasets: [{
+                    data: {{ payment_methods.data|safe }},
+                    backgroundColor: [
+                        '#3469c6',
+                        '#00c2a8',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#64748b'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#1f2b48',
+                        bodyColor: '#64748b',
+                        bodyFont: {
+                            size: 13
+                        },
+                        titleFont: {
+                            size: 15,
+                            weight: 'bold'
+                        },
+                        padding: 12,
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        boxPadding: 3,
+                        usePointStyle: true,
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+        
+        // Chart period filter handling
+        const chartFilters = document.querySelectorAll('.chart-filter');
+        
+        chartFilters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                chartFilters.forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, you would fetch new data for the selected period
+                // and update the chart data accordingly
+                const period = this.dataset.period;
+                console.log('Selected period:', period);
+                
+                // For demo purposes, we're just showing a different animation
+                revenueChart.data.datasets[0].data = revenueChart.data.datasets[0].data.map(() => {
+                    return Math.floor(Math.random() * 1000000);
+                });
+                
+                revenueChart.update();
+            });
+        });
+    });
+</script>
+{% endblock %}

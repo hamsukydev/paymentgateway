@@ -1,0 +1,270 @@
+{% extends "admin_custom/base.html" %}
+{% load payment_filters %}
+
+{% block title %}API Documentation | HamsukyPay Admin{% endblock %}
+
+{% block page_title %}Documentation{% endblock %}
+{% block page_subtitle %}API reference and integration guides{% endblock %}
+
+{% block styles %}
+<style>
+    .api-docs {
+        padding: 20px;
+    }
+    .doc-section {
+        margin-bottom: 30px;
+    }
+    .endpoint {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .endpoint h5 {
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+    }
+    .method-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 10px;
+        width: 50px;
+        text-align: center;
+    }
+    .get { background-color: #61affe; }
+    .post { background-color: #49cc90; }
+    .put { background-color: #fca130; }
+    .delete { background-color: #f93e3e; }
+    .patch { background-color: #50e3c2; }
+    .code-block {
+        background-color: #272822;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        overflow-x: auto;
+        white-space: pre;
+        margin: 15px 0;
+    }
+    .nav-tabs .nav-link.active {
+        font-weight: bold;
+    }
+    .category-nav {
+        background-color: #f8f9fa;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+        margin-bottom: 20px;
+        position: sticky;
+        top: 2rem;
+    }
+    .topic-content {
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        box-shadow: var(--box-shadow);
+    }
+    
+    .doc-sidebar-nav-link {
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .doc-sidebar-nav-link:hover {
+        color: var(--primary);
+        background-color: rgba(52, 105, 198, 0.05);
+    }
+    
+    .doc-sidebar-nav-link.active {
+        color: var(--primary);
+        background-color: rgba(52, 105, 198, 0.1);
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid api-docs">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-book"></i> API Documentation</h2>
+            <p class="lead">Comprehensive guide to HamsukyPay APIs, endpoints, and integration options</p>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="category-nav">
+                <h4>Documentation</h4>
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    {% for category in documentation_categories %}
+                        <button class="nav-link doc-sidebar-nav-link {% if forloop.first %}active{% endif %}" id="v-pills-{{ category.slug }}-tab" 
+                           data-bs-toggle="pill" data-bs-target="#v-pills-{{ category.slug }}" type="button" role="tab" 
+                           aria-controls="v-pills-{{ category.slug }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                           <i class="fas fa-book me-2"></i> {{ category.name }}
+                        </button>
+                    {% endfor %}
+                    <button class="nav-link doc-sidebar-nav-link" id="v-pills-api-tab" data-bs-toggle="pill" data-bs-target="#v-pills-api" type="button" role="tab" 
+                       aria-controls="v-pills-api" aria-selected="false">
+                       <i class="fas fa-code me-2"></i> API Reference
+                    </button>
+                    <button class="nav-link doc-sidebar-nav-link" id="v-pills-code-tab" data-bs-toggle="pill" data-bs-target="#v-pills-code" type="button" role="tab" 
+                       aria-controls="v-pills-code" aria-selected="false">
+                       <i class="fas fa-laptop-code me-2"></i> Code Samples
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                {% for category in documentation_categories %}
+                    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="v-pills-{{ category.slug }}" role="tabpanel" 
+                         aria-labelledby="v-pills-{{ category.slug }}-tab">
+                        <div class="doc-section">
+                            <h3>{{ category.name }}</h3>
+                            
+                            {% for topic in category.topics %}
+                                <div class="topic-content mb-4">
+                                    <h4>{{ topic.title }}</h4>
+                                    <p>{{ topic.content }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- API Reference Tab -->
+                <div class="tab-pane fade" id="v-pills-api" role="tabpanel" aria-labelledby="v-pills-api-tab">
+                    <div class="doc-section">
+                        <h3>API Reference</h3>
+                        <p>This reference documents all the endpoints available in the HamsukyPay API.</p>
+                        
+                        {% for endpoint in api_endpoints %}
+                            <div class="endpoint">
+                                <h5>
+                                    <span class="method-badge {{ endpoint.method|lower }}">{{ endpoint.method }}</span>
+                                    {{ endpoint.endpoint }}
+                                </h5>
+                                <p>{{ endpoint.description }}</p>
+                                
+                                <h6>Parameters:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for param_name, param_desc in endpoint.parameters.items %}
+                                                <tr>
+                                                    <td><code>{{ param_name }}</code>
+                                                        {% if param_name in "amount,email,customer,plan" %}
+                                                            <span class="badge bg-danger">Required</span>
+                                                        {% else %}
+                                                            <span class="badge bg-info">Optional</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ param_desc }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <h6 class="mt-3">Example Request:</h6>
+                                <div class="code-block">{{ endpoint.example_request }}</div>
+                                
+                                <h6 class="mt-3">Example Response:</h6>
+                                <div class="code-block">{{ endpoint.example_response }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Code Samples Tab -->
+                <div class="tab-pane fade" id="v-pills-code" role="tabpanel" aria-labelledby="v-pills-code-tab">
+                    <div class="doc-section">
+                        <h3>Code Samples</h3>
+                        <p>Here are sample implementations in different programming languages to help you get started with our API.</p>
+                        
+                        <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="python-tab" data-bs-toggle="tab" data-bs-target="#python" type="button" role="tab" 
+                                aria-controls="python" aria-selected="true">Python</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="javascript-tab" data-bs-toggle="tab" data-bs-target="#javascript" type="button" role="tab" 
+                                aria-controls="javascript" aria-selected="false">JavaScript</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="php-tab" data-bs-toggle="tab" data-bs-target="#php" type="button" role="tab" 
+                                aria-controls="php" aria-selected="false">PHP</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="java-tab" data-bs-toggle="tab" data-bs-target="#java" type="button" role="tab" 
+                                aria-controls="java" aria-selected="false">Java</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-3" id="languageTabContent">
+                            <div class="tab-pane fade show active" id="python" role="tabpanel" aria-labelledby="python-tab">
+                                <h5>Payment Initialization Example</h5>
+                                <div class="code-block">{{ code_samples.python }}</div>
+                            </div>
+                            <div class="tab-pane fade" id="javascript" role="tabpanel" aria-labelledby="javascript-tab">
+                                <h5>Payment Initialization Example</h5>
+                                <div class="code-block">{{ code_samples.javascript }}</div>
+                            </div>
+                            <div class="tab-pane fade" id="php" role="tabpanel" aria-labelledby="php-tab">
+                                <h5>Payment Initialization Example</h5>
+                                <div class="code-block">{{ code_samples.php }}</div>
+                            </div>
+                            <div class="tab-pane fade" id="java" role="tabpanel" aria-labelledby="java-tab">
+                                <h5>Payment Initialization Example</h5>
+                                <div class="code-block">{{ code_samples.java }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all tab buttons
+        const tabButtons = document.querySelectorAll('.doc-sidebar-nav-link');
+        
+        // Add click event listener to each button
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to the clicked button
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

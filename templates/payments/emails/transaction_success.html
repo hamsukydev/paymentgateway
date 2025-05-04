@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .transaction-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Payment Successful</h1>
+    </div>
+    <div class="content">
+        <p>Dear Customer,</p>
+        <p>Your payment has been successfully processed. Thank you for your transaction!</p>
+        
+        <div class="transaction-details">
+            <h3>Transaction Details:</h3>
+            <div class="detail-row">
+                <span><strong>Reference:</strong></span>
+                <span>{{ transaction.reference }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Amount:</strong></span>
+                <span>{{ currency }} {{ amount|floatformat:2 }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Date:</strong></span>
+                <span>{{ transaction.created_at|date:"F d, Y, g:i A" }}</span>
+            </div>
+            <div class="detail-row">
+                <span><strong>Payment Method:</strong></span>
+                <span>{{ transaction.payment_method|default:"Card"|title }}</span>
+            </div>
+            {% if transaction.description %}
+            <div class="detail-row">
+                <span><strong>Description:</strong></span>
+                <span>{{ transaction.description }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-row">
+                <span><strong>Status:</strong></span>
+                <span style="color: #4CAF50; font-weight: bold;">Successful</span>
+            </div>
+        </div>
+        
+        <p>If you have any questions about this transaction, please contact our support team at {{ support_email }}.</p>
+        
+        <p>Thank you for choosing {{ merchant_name }}!</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply directly to this email.</p>
+        <p>&copy; {% now "Y" %} {{ merchant_name }}. All rights reserved.</p>
+    </div>
+</body>
+</html>

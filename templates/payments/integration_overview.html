@@ -1,0 +1,526 @@
+{% extends "payments/base.html" %}
+
+{% block title %}HamsukyPay Integration Overview{% endblock %}
+
+{% block content %}
+<main class="integration-overview">
+    <section class="hero-section">
+        <div class="container">
+            <h1>Integrate HamsukyPay Into Your Application</h1>
+            <p class="lead">Simple, secure, and scalable payment solutions for businesses of all sizes</p>
+        </div>
+    </section>
+
+    <section class="overview-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Why Choose HamsukyPay?</h2>
+                    <p>HamsukyPay offers a comprehensive payment platform that enables businesses to accept payments globally with ease. Our robust API and developer tools make integration a breeze, while our security features keep your transactions safe.</p>
+                    
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3>Quick Integration</h3>
+                            <p>Integrate our payment gateway in minutes with our well-documented API and SDKs</p>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Enhanced Security</h3>
+                            <p>PCI-DSS compliant platform with advanced fraud detection and prevention</p>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3>Global Support</h3>
+                            <p>Accept payments in over 135 currencies from customers worldwide</p>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>Powerful Analytics</h3>
+                            <p>Gain insights from comprehensive reporting and analytics tools</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="integration-image">
+                        <img src="/static/img/integration-diagram.png" alt="HamsukyPay Integration Diagram" class="img-responsive">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="integration-steps">
+        <div class="container">
+            <h2 class="text-center">How HamsukyPay Works</h2>
+            <p class="text-center lead">Integrate our payment solution in four simple steps</p>
+            
+            <div class="steps-timeline">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Create an Account</h3>
+                        <p>Sign up for a HamsukyPay merchant account and complete the verification process</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Get Your API Keys</h3>
+                        <p>Access your unique API keys from the developer dashboard</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Integrate the API</h3>
+                        <p>Use our documentation and SDKs to integrate HamsukyPay into your application</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Start Accepting Payments</h3>
+                        <p>Go live and begin accepting payments from customers worldwide</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="api-documentation">
+        <div class="container">
+            <h2>API Documentation</h2>
+            <p class="lead">Our comprehensive API enables you to integrate HamsukyPay into your applications seamlessly</p>
+            
+            <div class="api-tabs">
+                <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="rest-tab" data-toggle="tab" href="#rest" role="tab">REST API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sdk-tab" data-toggle="tab" href="#sdk" role="tab">SDKs & Libraries</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="webhooks-tab" data-toggle="tab" href="#webhooks" role="tab">Webhooks</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="apiTabContent">
+                    <div class="tab-pane fade show active" id="rest" role="tabpanel">
+                        <div class="code-example">
+                            <pre><code class="language-bash">
+# Payment request example
+curl -X POST https://api.hamsukypay.com/v1/payments \
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 1000,
+    "currency": "USD",
+    "payment_method": "card",
+    "description": "Payment for order #123",
+    "customer": {
+      "email": "customer@example.com",
+      "name": "John Doe"
+    }
+  }'
+                            </code></pre>
+                        </div>
+                        <a href="{% url 'payments:merchant_api_docs' %}" class="btn btn-primary mt-3">View Full API Documentation</a>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="sdk" role="tabpanel">
+                        <div class="sdk-grid">
+                            <div class="sdk-item">
+                                <div class="sdk-icon">
+                                    <i class="fab fa-js"></i>
+                                </div>
+                                <h4>JavaScript</h4>
+                                <pre><code class="language-javascript">
+// Install: npm install hamsukypay-js
+import HamsukyPay from 'hamsukypay-js';
+
+const hamsukyPay = new HamsukyPay('YOUR_PUBLISHABLE_KEY');
+hamsukyPay.createPayment({
+  amount: 1000,
+  currency: 'USD',
+  description: 'Payment for order #123'
+});
+                                </code></pre>
+                            </div>
+                            
+                            <div class="sdk-item">
+                                <div class="sdk-icon">
+                                    <i class="fab fa-python"></i>
+                                </div>
+                                <h4>Python</h4>
+                                <pre><code class="language-python">
+# Install: pip install hamsukypay-python
+import hamsukypay
+
+hamsukypay.api_key = 'YOUR_SECRET_KEY'
+payment = hamsukypay.Payment.create(
+    amount=1000,
+    currency='USD',
+    description='Payment for order #123',
+    customer={
+        'email': 'customer@example.com',
+        'name': 'John Doe'
+    }
+)
+                                </code></pre>
+                            </div>
+                        </div>
+                        <a href="{% url 'payments:merchant_api_docs' %}#sdks" class="btn btn-primary mt-3">View All SDKs</a>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="webhooks" role="tabpanel">
+                        <p>Webhooks allow you to receive real-time notifications about events that happen in your HamsukyPay account.</p>
+                        <div class="code-example">
+                            <pre><code class="language-python">
+# Example webhook handler in Python (Flask)
+@app.route('/webhooks/hamsukypay', methods=['POST'])
+def hamsukypay_webhook():
+    payload = request.data
+    signature = request.headers.get('HamsukyPay-Signature')
+    
+    # Verify webhook signature
+    event = hamsukypay.Webhook.construct_event(
+        payload, signature, webhook_secret
+    )
+    
+    # Handle the event
+    if event.type == 'payment.succeeded':
+        payment = event.data.object
+        fulfill_order(payment.metadata.order_id)
+    
+    return '', 200
+                            </code></pre>
+                        </div>
+                        <a href="{% url 'payments:merchant_api_docs' %}#webhooks" class="btn btn-primary mt-3">Learn More About Webhooks</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="integration-case-studies">
+        <div class="container">
+            <h2 class="text-center">Integration Success Stories</h2>
+            <div class="case-studies-grid">
+                <div class="case-study-card">
+                    <div class="case-study-logo">
+                        <img src="/static/img/case-study-1.png" alt="Company Logo">
+                    </div>
+                    <div class="case-study-content">
+                        <h3>E-commerce Platform</h3>
+                        <p>"HamsukyPay's API was incredibly easy to integrate into our e-commerce platform. We saw a 15% increase in payment conversions after switching."</p>
+                        <p class="case-study-author">- Jane Smith, CTO</p>
+                    </div>
+                </div>
+                
+                <div class="case-study-card">
+                    <div class="case-study-logo">
+                        <img src="/static/img/case-study-2.png" alt="Company Logo">
+                    </div>
+                    <div class="case-study-content">
+                        <h3>Mobile App Developer</h3>
+                        <p>"The HamsukyPay SDK made integrating payments into our mobile app seamless. The documentation was clear and the support team was excellent."</p>
+                        <p class="case-study-author">- Mark Johnson, Lead Developer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Get Started?</h2>
+                <p>Create an account today and start accepting payments with HamsukyPay</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'payments:merchant_register' %}" class="btn btn-primary btn-lg">Create Account</a>
+                    <a href="{% url 'payments:merchant_api_docs' %}" class="btn btn-outline-light btn-lg">View API Docs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .integration-overview .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .integration-overview .hero-section h1 {
+        font-size: 42px;
+        margin-bottom: 20px;
+    }
+    
+    .integration-overview .lead {
+        font-size: 20px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    
+    .overview-section {
+        padding: 80px 0;
+        background-color: #f8f9fa;
+    }
+    
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+    }
+    
+    .benefit-item {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+    }
+    
+    .benefit-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .benefit-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    
+    .benefit-icon i {
+        font-size: 24px;
+    }
+    
+    .integration-image {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .integration-image img {
+        width: 100%;
+        height: auto;
+    }
+    
+    .integration-steps {
+        padding: 80px 0;
+    }
+    
+    .steps-timeline {
+        margin-top: 60px;
+        position: relative;
+    }
+    
+    .steps-timeline::before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 4px;
+        background: var(--primary-color);
+        left: 20px;
+        top: 0;
+    }
+    
+    .step {
+        display: flex;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .step-number {
+        width: 44px;
+        height: 44px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .step-content {
+        margin-left: 20px;
+        padding: 0 10px;
+    }
+    
+    .api-documentation {
+        padding: 80px 0;
+        background-color: #f8f9fa;
+    }
+    
+    .api-tabs {
+        margin-top: 40px;
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .nav-tabs {
+        border-bottom: 2px solid #eee;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: #555;
+        font-weight: 500;
+        padding: 10px 20px;
+    }
+    
+    .nav-tabs .nav-link.active {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .code-example {
+        background: #272822;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .code-example pre {
+        margin: 0;
+        color: #f8f8f2;
+    }
+    
+    .sdk-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+    
+    .sdk-item {
+        padding: 20px 0;
+    }
+    
+    .sdk-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .integration-case-studies {
+        padding: 80px 0;
+    }
+    
+    .case-studies-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-top: 50px;
+    }
+    
+    .case-study-card {
+        display: flex;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .case-study-logo {
+        width: 120px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+    }
+    
+    .case-study-logo img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .case-study-content {
+        padding: 25px;
+        flex: 1;
+    }
+    
+    .case-study-author {
+        font-style: italic;
+        color: #666;
+        margin-top: 10px;
+    }
+    
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .cta-content h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+    
+    .cta-buttons {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .btn-outline-light {
+        border: 2px solid white;
+        color: white;
+    }
+    
+    .btn-outline-light:hover {
+        background: white;
+        color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+        .benefits-grid, .sdk-grid, .case-studies-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .case-study-card {
+            flex-direction: column;
+        }
+        
+        .case-study-logo {
+            width: 100%;
+            height: 120px;
+        }
+    }
+</style>
+{% endblock %}

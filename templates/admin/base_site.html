@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | HamsukyPay Admin{% endblock %}
+
+{% block extrastyle %}
+<style>
+    :root {
+        --primary: #3469c6;
+        --secondary: #123866;
+        --accent: #00c2a8;
+        --primary-fg: #fff;
+        --body-fg: #333;
+        --body-bg: #fff;
+        --body-quiet-color: #666;
+        --body-loud-color: #000;
+    }
+    #header {
+        background: var(--primary);
+        color: var(--primary-fg);
+    }
+    #branding h1, #branding h1 a:link, #branding h1 a:visited {
+        color: var(--primary-fg);
+    }
+    div.breadcrumbs {
+        background: var(--secondary);
+        color: var(--primary-fg);
+    }
+    .module h2, .module caption, .inline-group h2 {
+        background: var(--secondary);
+        color: var(--primary-fg);
+    }
+    a:link, a:visited {
+        color: var(--primary);
+    }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary);
+        color: var(--primary-fg);
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: var(--primary);
+        opacity: 0.8;
+    }
+    .button.default, input[type=submit].default, .submit-row input.default {
+        background: var(--accent);
+    }
+    .button.default:hover, input[type=submit].default:hover {
+        background: var(--accent);
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'img/logo.png' %}" alt="HamsukyPay Logo" height="30" style="margin-right: 10px; vertical-align: middle;">
+        HamsukyPay Administration
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+    {% if user.is_active and user.is_staff %}
+        Welcome,
+        <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+    {% endif %}
+    {% block userlinks %}
+        {% if site_url %}
+            <a href="{{ site_url }}">View Site</a> /
+        {% endif %}
+        {% if user.is_active and user.is_staff %}
+            {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}">Change Password</a> /
+            {% endif %}
+            <a href="{% url 'admin:logout' %}">Log Out</a>
+        {% endif %}
+    {% endblock %}
+</div>
+{% endblock %}

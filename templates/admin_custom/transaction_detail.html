@@ -1,0 +1,856 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}{{ page_title }} - HamsukyPay Admin{% endblock %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}Transaction details and related information{% endblock %}
+
+{% block styles %}
+<style>
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        border-radius: 0.25rem;
+    }
+    
+    .status-badge-success {
+        color: #0e6c4a;
+        background-color: #d0f1e3;
+    }
+    
+    .status-badge-danger {
+        color: #991b1b;
+        background-color: #fee2e2;
+    }
+    
+    .status-badge-warning {
+        color: #92400e;
+        background-color: #fef3c7;
+    }
+    
+    .status-badge-secondary {
+        color: #5a5a5a;
+        background-color: #e9e9e9;
+    }
+    
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+    
+    .detail-card {
+        height: 100%;
+    }
+    
+    .transaction-metadata-table th {
+        width: 40%;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        list-style: none;
+        margin-bottom: 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.25rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -1.5rem;
+        top: 0.25rem;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+    }
+
+    .marker-success {
+        background-color: var(--success);
+    }
+
+    .marker-warning {
+        background-color: var(--warning);
+    }
+
+    .marker-danger {
+        background-color: var(--danger);
+    }
+
+    .marker-info {
+        background-color: var(--info);
+    }
+
+    .marker-secondary {
+        background-color: var(--secondary);
+    }
+
+    .timeline-content {
+        position: relative;
+    }
+
+    .timeline-date {
+        font-size: 0.75rem;
+        color: var(--gray);
+        margin-bottom: 0.25rem;
+    }
+
+    .log-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        margin-right: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .risk-gauge {
+        position: relative;
+        width: 100%;
+        height: 10px;
+        background-color: #e2e8f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .risk-gauge-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.5s ease;
+    }
+
+    .risk-low {
+        background-color: #4ade80;
+    }
+
+    .risk-medium {
+        background-color: #facc15;
+    }
+
+    .risk-high {
+        background-color: #f87171;
+    }
+
+    .risk-critical {
+        background-color: #ef4444;
+    }
+
+    .action-buttons {
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Action Buttons -->
+<div class="action-buttons">
+    <button type="button" class="btn btn-primary" onclick="window.print()">
+        <i class="fas fa-print me-2"></i> Print Details
+    </button>
+    <a href="{% url 'payments:admin_transactions' %}" class="btn btn-outline-secondary ms-2">
+        <i class="fas fa-arrow-left me-2"></i> Back to Transactions
+    </a>
+    {% if transaction.status == 'success' %}
+    <button type="button" class="btn btn-warning ms-2" data-bs-toggle="modal" data-bs-target="#refundModal">
+        <i class="fas fa-undo me-2"></i> Process Refund
+    </button>
+    {% endif %}
+    {% if transaction.status == 'pending' %}
+    <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#verifyModal">
+        <i class="fas fa-check-circle me-2"></i> Verify Payment
+    </button>
+    {% endif %}
+</div>
+
+<div class="row">
+    <!-- Main Transaction Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Transaction Information</h6>
+                <div class="card-header-actions">
+                    {% if transaction.status == 'success' %}
+                        <span class="status-badge status-badge-success">Success</span>
+                    {% elif transaction.status == 'failed' %}
+                        <span class="status-badge status-badge-danger">Failed</span>
+                    {% elif transaction.status == 'pending' %}
+                        <span class="status-badge status-badge-warning">Pending</span>
+                    {% elif transaction.status == 'refunded' %}
+                        <span class="status-badge status-badge-secondary">Refunded</span>
+                    {% elif transaction.status == 'partially_refunded' %}
+                        <span class="status-badge status-badge-secondary">Partially Refunded</span>
+                    {% elif transaction.status == 'flagged' %}
+                        <span class="status-badge status-badge-warning">Flagged for Review</span>
+                    {% else %}
+                        <span class="status-badge status-badge-secondary">{{ transaction.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Reference</h6>
+                        <p class="fw-medium fs-5">{{ transaction.reference }}</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Amount</h6>
+                        <p class="fw-medium fs-5">{{ transaction.currency }} {{ transaction.amount|floatformat:2 }}</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Customer</h6>
+                        <p class="fw-medium">{{ transaction.email }}</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Payment Method</h6>
+                        <p class="fw-medium">
+                            {% if transaction.payment_method %}
+                                {% if transaction.payment_method == 'card' %}
+                                    <span class="badge bg-primary">Card</span>
+                                {% elif transaction.payment_method == 'bank' %}
+                                    <span class="badge bg-info">Bank Transfer</span>
+                                {% elif transaction.payment_method == 'ussd' %}
+                                    <span class="badge bg-secondary">USSD</span>
+                                {% elif transaction.payment_method == 'qr' %}
+                                    <span class="badge bg-dark">QR Code</span>
+                                {% elif transaction.payment_method == 'mobile_money' %}
+                                    <span class="badge bg-warning text-dark">Mobile Money</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ transaction.payment_method }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Not specified</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Created At</h6>
+                        <p class="fw-medium">{{ transaction.created_at|date:"M d, Y H:i:s" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Completed At</h6>
+                        <p class="fw-medium">
+                            {% if transaction.completed_at %}
+                                {{ transaction.completed_at|date:"M d, Y H:i:s" }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Merchant</h6>
+                        <p class="fw-medium">
+                            {% if transaction.merchant %}
+                                <a href="{% url 'payments:admin_merchant_detail' transaction.merchant.id %}" class="text-decoration-none">
+                                    {{ transaction.merchant.business_name }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Payment Provider</h6>
+                        <p class="fw-medium">
+                            {% if transaction.payment_provider %}
+                                {{ transaction.payment_provider }}
+                            {% else %}
+                                <span class="text-muted">Direct</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Description</h6>
+                        <p class="fw-medium">
+                            {% if transaction.description %}
+                                {{ transaction.description }}
+                            {% else %}
+                                <span class="text-muted">No description provided</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">IP Address</h6>
+                        <p class="fw-medium">
+                            {% if transaction.ip_address %}
+                                {{ transaction.ip_address }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-muted mb-1">Device Fingerprint</h6>
+                        <p class="fw-medium">
+                            {% if transaction.device_fingerprint %}
+                                {{ transaction.device_fingerprint }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-1">Compliance Status</h6>
+                        <p class="fw-medium">
+                            {% if transaction.compliance_status == 'pending' %}
+                                <span class="badge bg-secondary">Pending Review</span>
+                            {% elif transaction.compliance_status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif transaction.compliance_status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% elif transaction.compliance_status == 'review' %}
+                                <span class="badge bg-warning text-dark">Under Review</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Currency Conversion Information if applicable -->
+                {% if transaction.original_currency and transaction.original_amount %}
+                <hr class="my-4">
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="mb-3">Currency Conversion</h6>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-muted mb-1">Original Amount</h6>
+                        <p class="fw-medium">{{ transaction.original_currency }} {{ transaction.original_amount|floatformat:2 }}</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-muted mb-1">Exchange Rate</h6>
+                        <p class="fw-medium">{{ transaction.exchange_rate|floatformat:6 }}</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-muted mb-1">Converted Amount</h6>
+                        <p class="fw-medium">{{ transaction.currency }} {{ transaction.amount|floatformat:2 }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Transaction Metadata -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Metadata</h6>
+            </div>
+            <div class="card-body">
+                {% if metadata %}
+                    <table class="table transaction-metadata-table">
+                        <tbody>
+                            {% for key, value in metadata.items %}
+                            <tr>
+                                <th>{{ key }}</th>
+                                <td>{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No metadata available for this transaction</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Compliance Logs -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Compliance Logs</h6>
+            </div>
+            <div class="card-body">
+                {% if compliance_logs %}
+                    <ul class="timeline">
+                        {% for log in compliance_logs %}
+                        <li class="timeline-item">
+                            <div class="timeline-marker {% if log.is_compliant %}marker-success{% else %}marker-danger{% endif %}"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">{{ log.created_at|date:"M d, Y H:i:s" }}</div>
+                                <div class="d-flex align-items-center">
+                                    <div class="log-badge {% if log.is_compliant %}bg-success{% else %}bg-danger{% endif %} text-white">
+                                        <i class="fas {% if log.is_compliant %}fa-check{% else %}fa-times{% endif %}"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ log.check_type|title }} Check</h6>
+                                        <p class="mb-0 small">{{ log.details }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No compliance logs available for this transaction</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Sidebar Cards -->
+    <div class="col-lg-4">
+        <!-- Risk Assessment -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Risk Assessment</h6>
+            </div>
+            <div class="card-body">
+                {% if risk_assessment %}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Risk Score</h6>
+                            <span class="fw-bold 
+                                {% if transaction.risk_score < 30 %}text-success
+                                {% elif transaction.risk_score < 60 %}text-warning
+                                {% else %}text-danger{% endif %}">
+                                {{ transaction.risk_score }}
+                            </span>
+                        </div>
+                        <div class="risk-gauge">
+                            <div class="risk-gauge-fill 
+                                {% if transaction.risk_score < 30 %}risk-low
+                                {% elif transaction.risk_score < 60 %}risk-medium
+                                {% elif transaction.risk_score < 80 %}risk-high
+                                {% else %}risk-critical{% endif %}" 
+                                style="width: {{ transaction.risk_score }}%">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-2">Risk Factors:</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Country Risk
+                                <span class="badge bg-primary rounded-pill">{{ risk_assessment.country_risk_score|default:"N/A" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Amount Risk
+                                <span class="badge bg-primary rounded-pill">{{ risk_assessment.amount_risk_score|default:"N/A" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Velocity Risk
+                                <span class="badge bg-primary rounded-pill">{{ risk_assessment.velocity_risk_score|default:"N/A" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h6 class="mb-2">Risk Notes:</h6>
+                        <p class="small">{{ risk_assessment.notes|default:"No additional notes" }}</p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No risk assessment available for this transaction</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Customer Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Customer Information</h6>
+            </div>
+            <div class="card-body">
+                {% if transaction.customer %}
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">Name</h6>
+                        <p class="fw-medium">{{ transaction.customer.name|default:transaction.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">Email</h6>
+                        <p class="fw-medium">{{ transaction.customer.email|default:transaction.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">Phone</h6>
+                        <p class="fw-medium">{{ transaction.customer.phone|default:"N/A" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">KYC Status</h6>
+                        <p class="fw-medium">
+                            {% if transaction.kyc_verified %}
+                                <span class="badge bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Verified</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'payments:admin_customer_detail' transaction.customer.id %}" class="btn btn-sm btn-outline-primary">
+                            View Customer Profile
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No customer record associated with this transaction</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Transaction Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-header-title">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary" onclick="sendReceipt('{{ transaction.reference }}')">
+                        <i class="fas fa-envelope me-2"></i> Send Receipt
+                    </button>
+                    
+                    <a href="#" class="btn btn-outline-secondary" onclick="generateTransactionPDF('{{ transaction.reference }}')">
+                        <i class="fas fa-file-pdf me-2"></i> Generate PDF
+                    </a>
+                    
+                    {% if transaction.status == 'pending' %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#verifyModal">
+                        <i class="fas fa-check-circle me-2"></i> Verify Payment
+                    </button>
+                    {% endif %}
+                    
+                    {% if transaction.status == 'success' %}
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#refundModal">
+                        <i class="fas fa-undo me-2"></i> Process Refund
+                    </button>
+                    {% endif %}
+                    
+                    {% if transaction.compliance_status == 'review' %}
+                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#complianceModal">
+                        <i class="fas fa-shield-alt me-2"></i> Review Compliance
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verify Payment Modal -->
+<div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifyModalLabel">Verify Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="verifyPaymentForm">
+                    <div class="mb-3">
+                        <label for="verifyReference" class="form-label">Transaction Reference</label>
+                        <input type="text" class="form-control" id="verifyReference" value="{{ transaction.reference }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="verifyStatus" class="form-label">Update Status</label>
+                        <select class="form-select" id="verifyStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="verifyComment" class="form-label">Comment</label>
+                        <textarea class="form-control" id="verifyComment" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitVerify">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Refund Modal -->
+<div class="modal fade" id="refundModal" tabindex="-1" aria-labelledby="refundModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="refundModalLabel">Process Refund</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="refundForm">
+                    <div class="mb-3">
+                        <label for="refundReference" class="form-label">Transaction Reference</label>
+                        <input type="text" class="form-control" id="refundReference" value="{{ transaction.reference }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="refundAmount" class="form-label">Amount to Refund</label>
+                        <input type="number" step="0.01" class="form-control" id="refundAmount" value="{{ transaction.amount }}" required>
+                        <div class="form-text">Maximum: {{ transaction.amount|floatformat:2 }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="refundReason" class="form-label">Reason for Refund</label>
+                        <select class="form-select" id="refundReason" required>
+                            <option value="">Select Reason</option>
+                            <option value="customer_request">Customer Request</option>
+                            <option value="duplicate_payment">Duplicate Payment</option>
+                            <option value="fraudulent">Fraudulent Transaction</option>
+                            <option value="service_issue">Service/Product Issue</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="refundComment" class="form-label">Additional Comment</label>
+                        <textarea class="form-control" id="refundComment" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRefund">Process Refund</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compliance Review Modal -->
+<div class="modal fade" id="complianceModal" tabindex="-1" aria-labelledby="complianceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="complianceModalLabel">Review Compliance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="complianceForm">
+                    <div class="mb-3">
+                        <label for="complianceReference" class="form-label">Transaction Reference</label>
+                        <input type="text" class="form-control" id="complianceReference" value="{{ transaction.reference }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="complianceStatus" class="form-label">Compliance Decision</label>
+                        <select class="form-select" id="complianceStatus" required>
+                            <option value="">Select Decision</option>
+                            <option value="approved">Approve Transaction</option>
+                            <option value="rejected">Reject Transaction</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="complianceNotes" class="form-label">Compliance Notes</label>
+                        <textarea class="form-control" id="complianceNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitCompliance">Submit Review</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verify Payment Form Handler
+        const submitVerifyBtn = document.getElementById('submitVerify');
+        if (submitVerifyBtn) {
+            submitVerifyBtn.addEventListener('click', function() {
+                const reference = document.getElementById('verifyReference').value;
+                const status = document.getElementById('verifyStatus').value;
+                const comment = document.getElementById('verifyComment').value;
+                
+                if (!status) {
+                    alert('Please select a status');
+                    return;
+                }
+                
+                // Create form data for submission
+                const formData = new FormData();
+                formData.append('status', status);
+                formData.append('comment', comment);
+                
+                // Display loading state
+                submitVerifyBtn.disabled = true;
+                submitVerifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                
+                // Send AJAX request to approve/reject transaction
+                fetch(`{% url 'payments:approve_transaction' transaction.reference %}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCsrfToken()
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(`Transaction ${status === 'success' ? 'approved' : 'rejected'} successfully.`);
+                        window.location.reload();
+                    } else {
+                        alert(`Error: ${data.message}`);
+                        submitVerifyBtn.disabled = false;
+                        submitVerifyBtn.innerHTML = 'Update Status';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing the request. Please try again.');
+                    submitVerifyBtn.disabled = false;
+                    submitVerifyBtn.innerHTML = 'Update Status';
+                });
+            });
+        }
+        
+        // Refund Form Handler
+        const submitRefundBtn = document.getElementById('submitRefund');
+        if (submitRefundBtn) {
+            submitRefundBtn.addEventListener('click', function() {
+                const reference = document.getElementById('refundReference').value;
+                const amount = document.getElementById('refundAmount').value;
+                const reason = document.getElementById('refundReason').value;
+                const comment = document.getElementById('refundComment').value;
+                
+                if (!amount || !reason) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+                
+                if (parseFloat(amount) > {{ transaction.amount }}) {
+                    alert('Refund amount cannot exceed the transaction amount');
+                    return;
+                }
+                
+                // Display loading state
+                submitRefundBtn.disabled = true;
+                submitRefundBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                
+                // Create form data for submission
+                const formData = new FormData();
+                formData.append('amount', amount);
+                formData.append('reason', reason);
+                formData.append('comment', comment);
+                
+                // In a full implementation, send AJAX request to process refund
+                // This is just a simulation for now
+                setTimeout(() => {
+                    alert('Refund processed successfully. Page will reload.');
+                    window.location.reload();
+                }, 1500);
+            });
+        }
+        
+        // Compliance Form Handler
+        const submitComplianceBtn = document.getElementById('submitCompliance');
+        if (submitComplianceBtn) {
+            submitComplianceBtn.addEventListener('click', function() {
+                const reference = document.getElementById('complianceReference').value;
+                const status = document.getElementById('complianceStatus').value;
+                const notes = document.getElementById('complianceNotes').value;
+                
+                if (!status) {
+                    alert('Please select a compliance decision');
+                    return;
+                }
+                
+                // Display loading state
+                submitComplianceBtn.disabled = true;
+                submitComplianceBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                
+                // In a full implementation, send AJAX request to update compliance
+                // This is just a simulation for now
+                setTimeout(() => {
+                    alert('Compliance review submitted successfully. Page will reload.');
+                    window.location.reload();
+                }, 1500);
+            });
+        }
+    });
+    
+    // Function to send receipt email
+    function sendReceipt(reference) {
+        if (!confirm('Are you sure you want to send a receipt to the customer?')) {
+            return;
+        }
+        
+        // Create form data for submission
+        const formData = new FormData();
+        
+        // Display loading state
+        const receiptBtn = document.querySelector('button[onclick*="sendReceipt"]');
+        const originalBtnText = receiptBtn.innerHTML;
+        receiptBtn.disabled = true;
+        receiptBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        
+        // Send AJAX request to send receipt
+        fetch(`{% url 'payments:send_transaction_receipt' transaction.reference %}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Receipt sent successfully to customer.`);
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+            receiptBtn.disabled = false;
+            receiptBtn.innerHTML = originalBtnText;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while sending the receipt. Please try again.');
+            receiptBtn.disabled = false;
+            receiptBtn.innerHTML = originalBtnText;
+        });
+    }
+    
+    // Function to generate PDF
+    function generateTransactionPDF(reference) {
+        // Example AJAX call - in a real implementation you would call your backend
+        alert('PDF generation initiated. It will be ready for download shortly.');
+        return false;
+    }
+    
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
+    }
+</script>
+{% endblock %}

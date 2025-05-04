@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            padding: 10px 24px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        .menu-items {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin-bottom: 5px;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background-color: rgba(52, 105, 198, 0.04);
+            color: var(--primary-color);
+        }
+        
+        .menu-link.active {
+            background-color: rgba(52, 105, 198, 0.08);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .menu-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .user-menu-toggle {
+            color: var(--text-color);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-menu-toggle:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Date filter */
+        .date-filter {
+            display: flex;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .date-option {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .date-option:last-child {
+            border-right: none;
+        }
+        
+        .date-option.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .date-option:hover:not(.active) {
+            background-color: var(--light-color);
+        }
+        
+        /* Custom date button */
+        .custom-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .custom-date:hover {
+            background-color: var(--light-color);
+        }
+        
+        /* KPI stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .stat-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var (--dark-color);
+            margin-bottom: 4px;
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .change-positive {
+            color: var(--success-color);
+        }
+        
+        .change-negative {
+            color: var(--danger-color);
+        }
+        
+        /* Charts section */
+        .chart-section {
+            margin-bottom: 24px;
+        }
+        
+        .chart-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .chart-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-action {
+            padding: 6px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .chart-action:hover {
+            color: var(--primary-color);
+            background-color: rgba(52, 105, 198, 0.1);
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Main chart */
+        .demo-main-chart {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+        
+        .demo-chart-line {
+            height: 1px;
+            background-color: var(--border-color);
+            position: absolute;
+            width: 100%;
+        }
+        
+        .demo-chart-line:nth-child(1) {
+            top: 20%;
+        }
+        
+        .demo-chart-line:nth-child(2) {
+            top: 40%;
+        }
+        
+        .demo-chart-line:nth-child(3) {
+            top: 60%;
+        }
+        
+        .demo-chart-line:nth-child(4) {
+            top: 80%;
+        }
+        
+        .chart-lines {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .chart-line-primary {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .chart-line-primary svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        .chart-line-primary path {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 2;
+        }
+        
+        .chart-line-secondary {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .chart-line-secondary svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        .chart-line-secondary path {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 2;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 16px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-color);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-primary {
+            background-color: var(--primary-color);
+        }
+        
+        .legend-secondary {
+            background-color: var(--accent-color);
+        }
+        
+        /* Device breakdown */
+        .device-breakdown {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .progress-item {
+            margin-bottom: 16px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .progress-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .progress-percentage {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .progress-desktop {
+            background-color: var(--primary-color);
+        }
+        
+        .progress-mobile {
+            background-color: var(--accent-color);
+        }
+        
+        .progress-tablet {
+            background-color: var(--success-color);
+        }
+        
+        /* Geo distribution */
+        .geo-map {
+            height: 300px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .geo-map img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+        
+        .map-marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            transform: translate(-50%, -50%);
+        }
+        
+        .marker-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 4px rgba(52, 105, 198, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 105, 198, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 105, 198, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 105, 198, 0);
+            }
+        }
+        
+        .geo-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .geo-stat-item {
+            padding: 16px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .geo-stat-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .geo-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+        }
+        
+        .geo-stat-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* Transaction table */
+        .transaction-table-container {
+            margin-top: 24px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .table-filter {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .table-filter:hover {
+            background-color: var(--light-color);
+        }
+        
+        .export-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .export-button:hover {
+            background-color: var(--border-color);
+        }
+        
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .transaction-table th {
+            padding: 12px 24px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transaction-table td {
+            padding: 12px 24px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .transaction-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .transaction-table tr:hover td {
+            background-color: rgba(52, 105, 198, 0.04);
+        }
+        
+        .transaction-id {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+            color: var (--dark-color);
+        }
+        
+        .transaction-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .table-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .showing-results {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .page-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .page-button:hover:not(.active) {
+            background-color: var(--border-color);
+        }
+        
+        .page-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Responsive */
+        .sidebar-toggle {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 20px;
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .geo-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle.active {
+                left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle:not(.active) {
+                left: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .date-filter {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .date-option {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .custom-date {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .transaction-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .table-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .table-footer {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"></span>
+                    HamsukyPay
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Main</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_dashboard' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-th-large"></i></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_analytics' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                           <a href="{% url 'payments:merchant_transactions' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-exchange-alt"></i></span>
+                                Transactions
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_customers' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                                Customers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Payments</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payment_links' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-link"></i></span>
+                                Payment Links
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                           <a href="{% url 'payments:merchant_invoices' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-receipt"></i></span>
+                                Invoices
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payouts' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-money-check-alt"></i></span>
+                                Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Developer</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-code"></i></span>
+                                API Keys
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-book"></i></span>
+                                Documentation
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-plug"></i></span>
+                                Webhooks
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Account</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_settings' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                                Settings
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-life-ring"></i></span>
+                                Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ merchant.business_name|slice:":1" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ merchant.business_name }}</div>
+                        <div class="user-role">Verified Merchant</div>
+                    </div>
+                    <div class="user-menu-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar toggle -->
+        <div class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Analytics</h1>
+                
+                <div class="header-actions">
+                    <div class="date-filter">
+                        <div class="date-option" data-period="7d">7 Days</div>
+                        <div class="date-option active" data-period="30d">30 Days</div>
+                        <div class="date-option" data-period="90d">90 Days</div>
+                        <div class="date-option" data-period="1y">1 Year</div>
+                    </div>
+                    
+                    <div class="custom-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        Custom Range
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Revenue</div>
+                    <div class="stat-value">₦{{ total_revenue|floatformat:2 }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up"></i> 12.5%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Transactions</div>
+                    <div class="stat-value">{{ total_transactions }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up"></i> 8.2%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Average Value</div>
+                    <div class="stat-value">₦{{ avg_transaction_value|floatformat:2 }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up"></i> 3.7%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Success Rate</div>
+                    <div class="stat-value">{{ success_rate }}%</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up"></i> 1.2%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">New Customers</div>
+                    <div class="stat-value">{{ new_customers }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up"></i> 15.3%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Failed Transactions</div>
+                    <div class="stat-value">{{ failed_transactions }}</div>
+                    <div class="stat-change change-negative">
+                        <i class="fas fa-arrow-down"></i> 4.8%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <section class="chart-section">
+                <div class="chart-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Revenue Trend</h3>
+                            <div class="chart-actions">
+                                <div class="chart-action" title="Download CSV">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                                <div class="chart-action" title="Refresh">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <div class="chart-action" title="More Options">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="demo-main-chart">
+                                <div class="demo-chart-line"></div>
+                                <div class="demo-chart-line"></div>
+                                <div class="demo-chart-line"></div>
+                                <div class="demo-chart-line"></div>
+                                
+                                <div class="chart-lines">
+                                    <div class="chart-line-primary">
+                                        <svg viewBox="0 0 1000 300" preserveAspectRatio="none">
+                                            <path d="M0,250 C50,230 100,180 150,190 C200,200 250,120 300,100 C350,80 400,140 450,120 C500,100 550,70 600,50 C650,30 700,70 750,90 C800,110 850,80 900,60 C950,40 1000,20 1000,20"></path>
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="chart-line-secondary">
+                                        <svg viewBox="0 0 1000 300" preserveAspectRatio="none">
+                                            <path d="M0,280 C50,260 100,240 150,230 C200,220 250,200 300,210 C350,220 400,180 450,170 C500,160 550,140 600,150 C650,160 700,130 750,120 C800,110 850,90 900,100 C950,110 1000,80 1000,80"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="legend-color legend-primary"></div>
+                                    <span>Current Period</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color legend-secondary"></div>
+                                    <span>Previous Period</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Device Breakdown</h3>
+                            <div class="chart-actions">
+                                <div class="chart-action" title="Refresh">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="device-breakdown">
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <div class="progress-title">
+                                            <i class="fas fa-desktop"></i> Desktop
+                                        </div>
+                                        <div class="progress-percentage">58%</div>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar progress-desktop" style="width: 58%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <div class="progress-title">
+                                            <i class="fas fa-mobile-alt"></i> Mobile
+                                        </div>
+                                        <div class="progress-percentage">36%</div>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar progress-mobile" style="width: 36%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <div class="progress-title">
+                                            <i class="fas fa-tablet-alt"></i> Tablet
+                                        </div>
+                                        <div class="progress-percentage">6%</div>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar progress-tablet" style="width: 6%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Geographic Distribution</h3>
+                        <div class="chart-actions">
+                            <div class="chart-action" title="Refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="chart-action" title="More Options">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="geo-map">
+                        <img src="https://www.nationsonline.org/maps/Nigeria-Political-Map.jpg" alt="Nigeria Map">
+                        <!-- Map markers -->
+                        <div class="map-marker" style="top: 25%; left: 65%;">
+                            <div class="marker-dot"></div>
+                        </div>
+                        <div class="map-marker" style="top: 35%; left: 40%;">
+                            <div class="marker-dot"></div>
+                        </div>
+                        <div class="map-marker" style="top: 55%; left: 35%;">
+                            <div class="marker-dot"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="geo-stats">
+                        <div class="geo-stat-item">
+                            <div class="geo-stat-title">Top Region</div>
+                            <div class="geo-stat-value">Lagos</div>
+                            <div class="geo-stat-change change-positive">45% of transactions</div>
+                        </div>
+                        
+                        <div class="geo-stat-item">
+                            <div class="geo-stat-title">Second Region</div>
+                            <div class="geo-stat-value">Abuja</div>
+                            <div class="geo-stat-change change-positive">26% of transactions</div>
+                        </div>
+                        
+                        <div class="geo-stat-item">
+                            <div class="geo-stat-title">Third Region</div>
+                            <div class="geo-stat-value">Port Harcourt</div>
+                            <div class="geo-stat-change change-positive">15% of transactions</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Transaction Table -->
+            <div class="transaction-table-container">
+                <div class="table-header">
+                    <h3 class="table-title">Recent Transactions</h3>
+                    
+                    <div class="table-actions">
+                        <input type="text" class="search-input" placeholder="Search transactions...">
+                        
+                        <div class="table-filter">
+                            <i class="fas fa-filter"></i>
+                            Filter
+                        </div>
+                        
+                        <button class="export-button">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td><span class="transaction-id">{{ transaction.reference }}</span></td>
+                                <td>{{ transaction.customer_email }}</td>
+                                <td>{{ transaction.created_at|date:"j M Y, g:i A" }}</td>
+                                <td><span class="transaction-amount">{{ transaction.amount|floatformat:2 }} {{ transaction.currency }}</span></td>
+                                <td>{{ transaction.payment_method|title }}</td>
+                                <td>
+                                    {% if transaction.status == 'success' %}
+                                    <span class="transaction-status status-success">Successful</span>
+                                    {% elif transaction.status == 'pending' %}
+                                    <span class="transaction-status status-pending">Pending</span>
+                                    {% else %}
+                                    <span class="transaction-status status-failed">Failed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-footer">
+                    <div class="showing-results">
+                        Showing <strong>1-10</strong> of <strong>{{ total_transactions }}</strong> transactions
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="page-button">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="page-button active">1</div>
+                        <div class="page-button">2</div>
+                        <div class="page-button">3</div>
+                        <div class="page-button">...</div>
+                        <div class="page-button">10</div>
+                        <div class="page-button">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarToggle.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-active');
+            
+            // Change icon
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Date filter
+        const dateOptions = document.querySelectorAll('.date-option');
+        dateOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                dateOptions.forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Here you would fetch new data based on the selected date range
+                const period = this.getAttribute('data-period');
+                console.log('Selected period:', period);
+                // Simulating data refresh
+                simulateChartAnimation();
+            });
+        });
+        
+        // Custom date range picker
+        const customDateBtn = document.querySelector('.custom-date');
+        customDateBtn.addEventListener('click', function() {
+            // Here you would show a date range picker
+            alert('Custom date range picker would open here');
+        });
+        
+        // Simulate chart animation
+        function simulateChartAnimation() {
+            const chartLines = document.querySelectorAll('.chart-line-primary path, .chart-line-secondary path');
+            
+            chartLines.forEach(path => {
+                const length = path.getTotalLength();
+                
+                // Reset
+                path.style.transition = 'none';
+                path.style.strokeDasharray = length + ' ' + length;
+                path.style.strokeDashoffset = length;
+                path.getBoundingClientRect();
+                
+                // Animate
+                path.style.transition = 'stroke-dashoffset 2s ease-in-out';
+                path.style.strokeDashoffset = '0';
+            });
+        }
+        
+        // Run animation on page load
+        window.addEventListener('load', simulateChartAnimation);
+        
+        // Progress bar animation
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-out';
+                    bar.style.width = width;
+                }, 300);
+            });
+        }
+        
+        window.addEventListener('load', animateProgressBars);
+        
+        // Transaction table search
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function() {
+            // Here you would implement search functionality
+            console.log('Searching for:', this.value);
+        });
+        
+        // Export button
+        const exportButton = document.querySelector('.export-button');
+        exportButton.addEventListener('click', function() {
+            // Here you would handle export functionality
+            alert('Data would be exported as CSV');
+        });
+        
+        // Filter button
+        const filterButton = document.querySelector('.table-filter');
+        filterButton.addEventListener('click', function() {
+            // Here you would show filter options
+            alert('Filter options would appear here');
+        });
+        
+        // Pagination
+        const pageButtons = document.querySelectorAll('.page-button');
+        pageButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (!this.classList.contains('active') && !this.querySelector('i')) {
+                    pageButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    // Here you would fetch new data for the selected page
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Ticket #{{ ticket.ticket_id }} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        {{ ticket.ticket_id }} - {{ ticket.subject }}
+                        {% if ticket.priority == 'urgent' %}
+                            <span class="badge badge-danger ml-2">Urgent</span>
+                        {% elif ticket.priority == 'high' %}
+                            <span class="badge badge-warning ml-2">High</span>
+                        {% elif ticket.priority == 'medium' %}
+                            <span class="badge badge-info ml-2">Medium</span>
+                        {% else %}
+                            <span class="badge badge-secondary ml-2">Low</span>
+                        {% endif %}
+                        
+                        {% if ticket.status == 'open' %}
+                            <span class="badge badge-primary ml-2">Open</span>
+                        {% elif ticket.status == 'in_progress' %}
+                            <span class="badge badge-info ml-2">In Progress</span>
+                        {% elif ticket.status == 'resolved' %}
+                            <span class="badge badge-success ml-2">Resolved</span>
+                        {% elif ticket.status == 'closed' %}
+                            <span class="badge badge-secondary ml-2">Closed</span>
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">
+                        Submitted by {{ ticket.merchant.business_name }} on {{ ticket.created_at|date:"M d, Y H:i" }}
+                    </small>
+                </div>
+                <div class="card-body">
+                    <h6>Ticket Details</h6>
+                    <p>{{ ticket.message|linebreaks }}</p>
+                    
+                    {% if ticket.attachment %}
+                    <div class="mt-3">
+                        <h6>Attachment</h6>
+                        <a href="{{ ticket.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                            <i class="fas fa-paperclip"></i> View Attachment
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <h6>Conversation</h6>
+                    {% for reply in replies %}
+                    <div class="card mb-3 {% if reply.is_admin %}border-primary{% else %}border-secondary{% endif %}">
+                        <div class="card-header {% if reply.is_admin %}bg-light{% else %}bg-light-secondary{% endif %} py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if reply.is_admin %}
+                                        <span class="font-weight-bold">{{ reply.user.get_full_name|default:reply.user.username }}</span> <span class="badge badge-primary">Staff</span>
+                                    {% else %}
+                                        <span class="font-weight-bold">{{ ticket.merchant.business_name }}</span> <span class="badge badge-secondary">Merchant</span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">{{ reply.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <p class="card-text">{{ reply.message|linebreaks }}</p>
+                            {% if reply.attachment %}
+                            <a href="{{ reply.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                <i class="fas fa-paperclip"></i> View Attachment
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_reply" value="1">
+                        <div class="form-group">
+                            <label for="reply_message">Add Reply</label>
+                            <textarea class="form-control" id="reply_message" name="reply_message" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reply_attachment">Attachment (Optional)</label>
+                            <input type="file" class="form-control-file" id="reply_attachment" name="reply_attachment">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Reply</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Ticket ID:</th>
+                            <td>{{ ticket.ticket_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Merchant:</th>
+                            <td>{{ ticket.merchant.business_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type:</th>
+                            <td>{{ ticket.get_ticket_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>{{ ticket.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Priority:</th>
+                            <td>{{ ticket.get_priority_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Created:</th>
+                            <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% if ticket.assigned_to %}
+                        <tr>
+                            <th>Assigned To:</th>
+                            <td>{{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if ticket.resolved_at %}
+                        <tr>
+                            <th>Resolved:</th>
+                            <td>{{ ticket.resolved_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_status" value="1">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                {% for status_value, status_label in status_choices %}
+                                <option value="{{ status_value }}" {% if ticket.status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Assign Ticket</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="assign_ticket" value="1">
+                        <div class="form-group">
+                            <label for="assigned_to">Assign To</label>
+                            <select class="form-control" id="assigned_to" name="assigned_to">
+                                <option value="">-- Unassigned --</option>
+                                {% for staff in staff_users %}
+                                <option value="{{ staff.id }}" {% if ticket.assigned_to == staff %}selected{% endif %}>
+                                    {{ staff.get_full_name|default:staff.username }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Assign Ticket</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

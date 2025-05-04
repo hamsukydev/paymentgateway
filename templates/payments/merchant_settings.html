@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HamsukyPay - Merchant Settings</title>
+    <style>
+        :root {
+            --primary-color: #6772E5;
+            --secondary-color: #32325d;
+            --success-color: #2dce89;
+            --info-color: #11cdef;
+            --warning-color: #fb6340;
+            --danger-color: #f5365c;
+            --light-color: #f8f9fe;
+            --dark-color: #172b4d;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--secondary-color);
+            line-height: 1.5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu {
+            flex-grow: 1;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(103, 114, 229, 0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background: #556cd6;
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background: #f23a5f;
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background: #26b275;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .alert-success {
+            background-color: rgba(45, 206, 137, 0.1);
+            border: 1px solid rgba(45, 206, 137, 0.2);
+            color: var(--success-color);
+        }
+        
+        .alert-danger {
+            background-color: rgba(245, 54, 92, 0.1);
+            border: 1px solid rgba(245, 54, 92, 0.2);
+            color: var(--danger-color);
+        }
+        
+        /* Tab styles */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .tab-link {
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #8898aa;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Media queries */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">HamsukyPay</div>
+            <div>Merchant Portal</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="{% url 'payments:merchant_dashboard' %}">
+                <i class="material-icons">dashboard</i> Dashboard
+            </a>
+            <a href="{% url 'payments:merchant_transactions' %}">
+                <i class="material-icons">swap_horiz</i> Transactions
+            </a>
+            <a href="{% url 'payments:merchant_api_docs' %}">
+                <i class="material-icons">code</i> API Integration
+            </a>
+            <a href="{% url 'payments:merchant_settings' %}" class="active">
+                <i class="material-icons">settings</i> Settings
+            </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <a href="/logout/" class="btn btn-sm" style="background: rgba(255,255,255,0.1); width: 100%;">
+                <i class="material-icons" style="font-size: 14px; vertical-align: middle;">logout</i> Log Out
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="main-header">
+            <h1 class="main-title">Settings</h1>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="tab-nav">
+                    <div class="tab-link active" data-tab="profile">Profile Settings</div>
+                    <div class="tab-link" data-tab="business">Business Details</div>
+                    <div class="tab-link" data-tab="payment">Payment Settings</div>
+                    <div class="tab-link" data-tab="security">Security</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Profile Tab -->
+                <div class="tab-content active" id="profile-tab">
+                    <form id="profile-form" method="post" action="{% url 'payments:merchant_update_profile' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="profile">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" class="form-control" value="{{ merchant.user.first_name }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" class="form-control" value="{{ merchant.user.last_name }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control" value="{{ merchant.user.email }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Business Details Tab -->
+                <div class="tab-content" id="business-tab">
+                    <form id="business-form" method="post" action="{% url 'payments:merchant_update_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="business">
+                        
+                        <div class="form-group">
+                            <label for="business_name">Business Name</label>
+                            <input type="text" id="business_name" name="business_name" class="form-control" value="{{ merchant.business_name }}" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="business_email">Business Email</label>
+                                <input type="email" id="business_email" name="business_email" class="form-control" value="{{ merchant.business_email }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="business_phone">Business Phone</label>
+                                <input type="tel" id="business_phone" name="business_phone" class="form-control" value="{{ merchant.business_phone }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="business_address">Business Address</label>
+                            <textarea id="business_address" name="business_address" class="form-control" rows="3" required>{{ merchant.business_address }}</textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="website">Website (Optional)</label>
+                                <input type="url" id="website" name="website" class="form-control" value="{{ merchant.website }}" placeholder="https://example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="industry">Industry (Optional)</label>
+                                <input type="text" id="industry" name="industry" class="form-control" value="{{ merchant.industry }}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="business_description">Business Description</label>
+                            <textarea id="business_description" name="business_description" class="form-control" rows="4">{{ merchant.business_description }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Business Details</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Payment Settings Tab -->
+                <div class="tab-content" id="payment-tab">
+                    <form id="payment-form" method="post" action="{% url 'payments:merchant_update_profile' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="payment">
+                        
+                        <div class="form-group">
+                            <label for="settlement_bank">Settlement Bank</label>
+                            <select id="settlement_bank" name="settlement_bank" class="form-control" required>
+                                <option value="">Select a bank...</option>
+                                <option value="Access Bank" {% if merchant.settlement_bank == "Access Bank" %}selected{% endif %}>Access Bank</option>
+                                <option value="First Bank" {% if merchant.settlement_bank == "First Bank" %}selected{% endif %}>First Bank</option>
+                                <option value="GTBank" {% if merchant.settlement_bank == "GTBank" %}selected{% endif %}>GTBank</option>
+                                <option value="UBA" {% if merchant.settlement_bank == "UBA" %}selected{% endif %}>UBA</option>
+                                <option value="Zenith Bank" {% if merchant.settlement_bank == "Zenith Bank" %}selected{% endif %}>Zenith Bank</option>
+                                <!-- Add more banks as needed -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="settlement_account">Account Number</label>
+                                <input type="text" id="settlement_account" name="settlement_account" class="form-control" value="{{ merchant.settlement_account }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="settlement_account_name">Account Name</label>
+                                <input type="text" id="settlement_account_name" name="settlement_account_name" class="form-control" value="{{ merchant.settlement_account_name }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Payment Settings</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Security Tab -->
+                <div class="tab-content" id="security-tab">
+                    <form id="password-form" method="post" action="{% url 'payments:merchant_update_password' %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" id="current_password" name="current_password" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="new_password">New Password</label>
+                                <input type="password" id="new_password" name="new_password" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm_password">Confirm New Password</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                    
+                    <hr style="margin: 30px 0;">
+                    
+                    <div>
+                        <h3 style="margin-bottom: 15px;">API Keys</h3>
+                        <p style="margin-bottom: 20px;">Your API keys give you access to make API calls to HamsukyPay. Keep your secret key safe.</p>
+                        
+                        <div class="form-group">
+                            <label>Public Key</label>
+                            <div style="display: flex; margin-top: 10px;">
+                                <input type="text" id="public-key" readonly class="form-control" value="{{ merchant.public_key }}" style="flex-grow: 1;">
+                                <button id="copy-public-key" class="btn" style="margin-left: 10px;">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Secret Key</label>
+                            <div style="display: flex; margin-top: 10px;">
+                                <input type="password" id="secret-key" readonly class="form-control" value="sk_****" style="flex-grow: 1;">
+                                <button id="reveal-secret-key" class="btn" style="margin-left: 10px;">Show</button>
+                                <button id="copy-secret-key" class="btn" style="margin-left: 10px; display: none;">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button id="regenerate-keys" class="btn btn-danger">Regenerate API Keys</button>
+                            <p style="font-size: 14px; color: #8898aa; margin-top: 10px;">Warning: Regenerating your API keys will invalidate your existing keys.</p>
+                        </div>
+                    </div>
+                    
+                    <hr style="margin: 30px 0;">
+                    
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--danger-color);">Danger Zone</h3>
+                        <p style="margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
+                        <button id="delete-account" class="btn btn-danger">Delete My Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab Navigation
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Deactivate all tabs
+                    tabLinks.forEach(item => item.classList.remove('active'));
+                    tabContents.forEach(item => item.classList.remove('active'));
+                    
+                    // Activate current tab
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Handle API key actions
+            document.getElementById('copy-public-key')?.addEventListener('click', function() {
+                copyToClipboard('public-key');
+            });
+            
+            document.getElementById('reveal-secret-key')?.addEventListener('click', function() {
+                revealSecretKey();
+            });
+            
+            document.getElementById('copy-secret-key')?.addEventListener('click', function() {
+                copyToClipboard('secret-key');
+            });
+            
+            document.getElementById('regenerate-keys')?.addEventListener('click', function() {
+                if (confirm('Are you sure you want to regenerate your API keys? This will invalidate your current keys.')) {
+                    regenerateApiKeys();
+                }
+            });
+            
+            document.getElementById('delete-account')?.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                    if (prompt('Please type "DELETE" to confirm account deletion:') === 'DELETE') {
+                        // Submit delete request
+                        fetch('{% url "payments:merchant_delete_account" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = '{% url "payments:home" %}';
+                            } else {
+                                alert(data.message || 'An error occurred. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred. Please try again.');
+                        });
+                    }
+                }
+            });
+            
+            // Form validation
+            document.getElementById('password-form')?.addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('new_password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                
+                if (newPassword !== confirmPassword) {
+                    e.preventDefault();
+                    alert('New passwords do not match.');
+                }
+            });
+        });
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Show copied message
+            const originalText = document.getElementById(`copy-${elementId}`).textContent;
+            document.getElementById(`copy-${elementId}`).textContent = 'Copied!';
+            
+            setTimeout(() => {
+                document.getElementById(`copy-${elementId}`).textContent = originalText;
+            }, 2000);
+        }
+        
+        function revealSecretKey() {
+            fetch('{% url "payments:merchant_api_keys" %}?reveal_secret=true')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('secret-key').value = data.secret_key;
+                    document.getElementById('secret-key').type = 'text';
+                    document.getElementById('reveal-secret-key').textContent = 'Hide';
+                    document.getElementById('copy-secret-key').style.display = 'inline-block';
+                    
+                    // Change event handler to hide key
+                    document.getElementById('reveal-secret-key').onclick = function() {
+                        document.getElementById('secret-key').value = 'sk_****' + data.secret_key.slice(-4);
+                        document.getElementById('secret-key').type = 'password';
+                        document.getElementById('reveal-secret-key').textContent = 'Show';
+                        document.getElementById('copy-secret-key').style.display = 'none';
+                        
+                        // Reset event handler
+                        document.getElementById('reveal-secret-key').onclick = revealSecretKey;
+                    };
+                })
+                .catch(error => {
+                    console.error('Error fetching API keys:', error);
+                    alert('Error fetching API keys. Please try again.');
+                });
+        }
+        
+        function regenerateApiKeys() {
+            fetch('{% url "payments:merchant_regenerate_keys" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.public_key && data.secret_key) {
+                    document.getElementById('public-key').value = data.public_key;
+                    document.getElementById('secret-key').value = data.secret_key;
+                    document.getElementById('secret-key').type = 'text';
+                    document.getElementById('reveal-secret-key').textContent = 'Hide';
+                    document.getElementById('copy-secret-key').style.display = 'inline-block';
+                    alert('API keys regenerated successfully. Please update your integration with the new keys.');
+                } else {
+                    alert('Error regenerating API keys.');
+                }
+            })
+            .catch(error => {
+                console.error('Error regenerating API keys:', error);
+                alert('Error regenerating API keys. Please try again.');
+            });
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

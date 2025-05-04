@@ -1,0 +1,55 @@
+{% extends "emails/support/base_email.html" %}
+
+{% block title %}Status Update for Your Support Ticket{% endblock %}
+
+{% block content %}
+<h1>Support Ticket Status Update</h1>
+
+<p>Dear {{ ticket.merchant.business_name }},</p>
+
+<p>The status of your support ticket has been updated.</p>
+
+<div class="ticket-info">
+    <table>
+        <tr>
+            <td><strong>Ticket ID:</strong></td>
+            <td class="ticket-id">{{ ticket.ticket_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Subject:</strong></td>
+            <td>{{ ticket.subject }}</td>
+        </tr>
+        <tr>
+            <td><strong>Previous Status:</strong></td>
+            <td>{{ previous_status_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>New Status:</strong></td>
+            <td><strong>{{ ticket.get_status_display }}</strong></td>
+        </tr>
+        <tr>
+            <td><strong>Updated:</strong></td>
+            <td>{{ ticket.updated_at|date:"F j, Y, g:i a" }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if ticket.status == 'resolved' %}
+<p>Your ticket has been marked as <strong>resolved</strong>. If you're satisfied with the resolution, no further action is needed.</p>
+
+<p>If you feel that your issue has not been completely resolved, you can reopen this ticket by replying to it in your merchant dashboard.</p>
+{% elif ticket.status == 'closed' %}
+<p>Your ticket has been <strong>closed</strong>. If you need further assistance, please create a new support ticket.</p>
+{% elif ticket.status == 'in_progress' %}
+<p>Our support team is actively working on your ticket. You will be notified when there are updates.</p>
+{% endif %}
+
+<p>You can view the full conversation by clicking the button below:</p>
+
+<a href="{{ ticket_url }}" class="btn">View Ticket</a>
+
+<p>Thank you for your patience.</p>
+
+<p>Best regards,<br>
+The HamsukyPay Support Team</p>
+{% endblock %}

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            padding: 10px 24px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        .menu-items {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin-bottom: 5px;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 24px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background-color: rgba(52, 105, 198, 0.04);
+            color: var(--primary-color);
+        }
+        
+        .menu-link.active {
+            background-color: rgba(52, 105, 198, 0.08);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .menu-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .user-menu-toggle {
+            color: var(--text-color);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-menu-toggle:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Transactions Filter Panel */
+        .filter-panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 105, 198, 0.1);
+        }
+        
+        .form-control-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+        
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 12px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-secondary {
+            background-color: #fff;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--light-color);
+        }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Transactions Table */
+        .transactions-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .transaction-table th {
+            text-align: left;
+            padding: 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-bottom: 2px solid var(--border-color);
+            background-color: #f8fafc;
+        }
+        
+        .transaction-table td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .transaction-customer {
+            display: flex;
+            align-items: center;
+        }
+        
+        .customer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+            font-size: 13px;
+        }
+        
+        .customer-email {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .transaction-ref {
+            color: var(--primary-color);
+            font-family: monospace;
+            font-weight: 500;
+            font-size: 12px;
+            background-color: rgba(52, 105, 198, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .transaction-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: rgba(14, 173, 105, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .transaction-date {
+            color: var(--text-muted);
+        }
+        
+        .transaction-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background-color: transparent;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .pagination-info {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .page-item {
+            display: inline-block;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .page-link:hover {
+            background-color: var(--border-color);
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .page-item.disabled .page-link {
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        /* Responsive */
+        .sidebar-toggle {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 20px;
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            display: none;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle.active {
+                left: var(--sidebar-width);
+            }
+            
+            .sidebar-toggle:not(.active) {
+                left: 20px;
+            }
+            
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .transaction-table-container {
+                overflow-x: auto;
+            }
+            
+            .transaction-table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"></span>
+                    HamsukyPay
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Main</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_dashboard' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-th-large"></i></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_analytics' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-chart-line"></i></span>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_transactions' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-exchange-alt"></i></span>
+                                Transactions
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_customers' %}" class="menu-link active">
+                                <span class="menu-icon"><i class="fas fa-users"></i></span>
+                                Customers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Payments</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payment_links' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-link"></i></span>
+                                Payment Links
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                           <a href="{% url 'payments:merchant_invoices' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-receipt"></i></span>
+                                Invoices
+                            </a>
+                        </li>
+                     
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_payouts' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-money-check-alt"></i></span>
+                                Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Developer</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-code"></i></span>
+                                API Keys
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_api_docs' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-book"></i></span>
+                                Documentation
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-plug"></i></span>
+                                Webhooks
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="menu-section">
+                    <h3 class="menu-section-title">Account</h3>
+                    <ul class="menu-items">
+                        <li class="menu-item">
+                            <a href="{% url 'payments:merchant_settings' %}" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                                Settings
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="menu-link">
+                                <span class="menu-icon"><i class="fas fa-life-ring"></i></span>
+                                Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ merchant.business_name|slice:":1" }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ merchant.business_name }}</div>
+                        <div class="user-role">Verified Merchant</div>
+                    </div>
+                    <div class="user-menu-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar toggle -->
+        <div class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Transactions</h1>
+                
+                <div class="header-actions">
+                    <button class="btn btn-secondary btn-icon">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                    <button class="btn btn-primary btn-icon">
+                        <i class="fas fa-plus"></i> Create Payment Link
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filter Panel -->
+            <div class="filter-panel">
+                <form class="filter-form">
+                    <div class="form-group">
+                        <label class="form-label" for="filter-status">Status</label>
+                        <select class="form-control form-control-select" id="filter-status">
+                            <option value="">All Statuses</option>
+                            <option value="success">Successful</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="filter-date-from">From Date</label>
+                        <input type="date" class="form-control" id="filter-date-from">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="filter-date-to">To Date</label>
+                        <input type="date" class="form-control" id="filter-date-to">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="filter-search">Search</label>
+                        <input type="text" class="form-control" id="filter-search" placeholder="Email, Reference, Amount...">
+                    </div>
+                </form>
+                
+                <div class="filter-actions">
+                    <button class="btn btn-secondary">Reset</button>
+                    <button class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+            
+            <!-- Transactions Table -->
+            <div class="transactions-card">
+                <div class="transaction-table-container">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if transactions %}
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td>
+                                        <div class="transaction-ref">{{ transaction.reference }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="transaction-customer">
+                                            <div class="customer-avatar">
+                                                {{ transaction.email|slice:":1"|upper }}
+                                            </div>
+                                            <div class="customer-email">{{ transaction.email }}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="transaction-amount">
+                                            {{ transaction.amount|floatformat:2 }} {{ transaction.currency }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if transaction.status == 'success' %}
+                                        <span class="transaction-status status-success">Successful</span>
+                                        {% elif transaction.status == 'pending' %}
+                                        <span class="transaction-status status-pending">Pending</span>
+                                        {% else %}
+                                        <span class="transaction-status status-failed">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if transaction.payment_method %}
+                                            {{ transaction.payment_method|title }}
+                                        {% else %}
+                                            --
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="transaction-date">
+                                            {{ transaction.created_at|date:"j M Y, g:i A" }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="transaction-actions">
+                                            <button class="action-btn" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="action-btn" title="Download Receipt">
+                                                <i class="fas fa-file-alt"></i>
+                                            </button>
+                                            <button class="action-btn" title="More Options">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px;">
+                                        <div style="font-size: 16px; color: var(--text-muted);">
+                                            <i class="fas fa-search" style="font-size: 20px; margin-bottom: 10px;"></i>
+                                            <p>No transactions found</p>
+                                            <p style="font-size: 14px; margin-top: 5px;">Try adjusting your filters or create a new payment link</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span>1</span> to <span>{{ transactions|length }}</span> of <span>{{ transactions|length }}</span> entries
+                    </div>
+                    
+                    <nav class="pagination">
+                        <div class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </div>
+                        <div class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </div>
+                        <div class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarToggle.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-active');
+            
+            // Change icon
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Date filter defaults
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates for today and 30 days ago
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            document.getElementById('filter-date-from').value = formatDate(thirtyDaysAgo);
+            document.getElementById('filter-date-to').value = formatDate(today);
+        });
+    </script>
+</body>
+</html>

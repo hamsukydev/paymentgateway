@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Merchant Account - HamsukyPay</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3469c6;
+            --primary-light: #4d7fd9;
+            --secondary-color: #123866;
+            --accent-color: #00c2a8;
+            --success-color: #0ead69;
+            --light-color: #f9fbfd;
+            --dark-color: #1f2b48;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --orange-color: #F5A623;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .logo-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+            position: relative;
+        }
+        
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.4;
+        }
+        
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            top: -100px;
+            right: 10%;
+        }
+        
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            bottom: -50px;
+            left: 10%;
+        }
+        
+        .register-container {
+            width: 100%;
+            max-width: 620px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .register-header {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        
+        .register-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .register-subtitle {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            flex: 1;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 15px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 105, 198, 0.2);
+        }
+        
+        .form-hint {
+            font-size: 13px;
+            color: var(--text-color);
+            margin-top: 6px;
+        }
+        
+        .form-error {
+            font-size: 13px;
+            color: #e53e3e;
+            margin-top: 6px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .register-footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .login-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .error-message i {
+            font-size: 16px;
+        }
+        
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin: 28px 0;
+            cursor: pointer;
+        }
+        
+        .terms-checkbox input {
+            margin-right: 12px;
+            margin-top: 5px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        
+        /* Benefits section */
+        .benefits {
+            margin-top: 32px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+        
+        .benefits-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .benefits-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .benefit-item {
+            flex: 1;
+            min-width: 240px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .benefit-icon {
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+        
+        .benefit-text {
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        /* Multi-step form styles */
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+        }
+
+        .step-buttons .btn {
+            width: auto;
+            min-width: 120px;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--light-color);
+        }
+
+        .step-buttons .btn-next {
+            margin-left: auto;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            margin-bottom: 32px;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .progress-steps::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+        
+        .progress-step {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 8px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+            margin: 0 auto 8px;
+            transition: all 0.3s;
+        }
+        
+        .step-label {
+            font-size: 13px;
+            color: var(--text-color);
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .progress-step.active .step-number {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .progress-step.active .step-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .progress-step.completed .step-number {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+
+        .progress-step.completed .step-number::after {
+            content: "✓";
+        }
+
+        /* Toggle switch for mode */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 24px 0;
+            gap: 12px;
+        }
+
+        .toggle-option {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .toggle-option.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .toggle-slider {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: #e2e8f0;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-slider::after {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        .toggle-slider.active {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-slider.active::after {
+            left: calc(100% - 23px);
+        }
+
+        /* CAC Radio options */
+        .radio-options {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .radio-option {
+            position: relative;
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option.selected {
+            border-color: var(--primary-color);
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-right: 12px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .radio-option.selected .radio-custom {
+            border-color: var(--primary-color);
+        }
+
+        .radio-option.selected .radio-custom::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .radio-orange .radio-custom {
+            border-color: var(--orange-color);
+        }
+
+        .radio-orange.selected .radio-custom {
+            border-color: var(--orange-color);
+        }
+
+        .radio-orange.selected .radio-custom::after {
+            background-color: var(--orange-color);
+        }
+
+        /* Password field with visibility toggle */
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 5px;
+        }
+
+        /* Verification button */
+        .verify-button {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .verify-field {
+            position: relative;
+        }
+
+        /* Country and category selects with icons */
+        .select-with-icon {
+            position: relative;
+        }
+
+        .select-with-icon .form-control {
+            padding-left: 42px;
+        }
+
+        .select-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 16px;
+        }
+
+        /* Document requirements panel */
+        .doc-requirements {
+            background-color: #FFFBEB;
+            border: 1px solid #FEF3C7;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .doc-requirements h4 {
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .doc-requirements ol {
+            padding-left: 20px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .doc-requirements li {
+            margin-bottom: 6px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .register-container {
+                margin: 0 20px;
+                padding: 30px 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+            
+            .benefits-list {
+                flex-direction: column;
+            }
+
+            .progress-steps .step-label {
+                font-size: 11px;
+            }
+
+            .radio-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="container">
+        <nav>
+            <a href="{% url 'payments:home' %}" class="logo">
+                <span class="logo-icon"></span>
+                HamsukyPay
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        
+        <div class="register-container">
+            <div class="register-header">
+                <h1 class="register-title">Let's get to know you</h1>
+                <p class="register-subtitle">Start accepting payments in minutes</p>
+            </div>
+            
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Business Info</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Personal Info</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Verification</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Security</div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" action="{% url 'payments:merchant_register' %}" id="registrationForm">
+                {% csrf_token %}
+                
+                <!-- Step 1: Business Information -->
+                <div class="step active" id="step1">
+                    <div class="toggle-switch">
+                        <span class="toggle-option active" data-mode="business">Business</span>
+                        <div class="toggle-slider"></div>
+                        <span class="toggle-option" data-mode="individual">Individual</span>
+                    </div>
+                    <input type="hidden" name="account_type" id="account_type" value="business">
+
+                    <div class="form-group">
+                        <label for="business_name" class="form-label">Registered business name</label>
+                        <input type="text" id="business_name" name="business_name" class="form-control" placeholder="Enter your business name" required>
+                        <div class="form-hint">Ensure this name matches the name on your registration certificate.</div>
+                    </div>
+                    
+                    <div class="form-group" id="cac-question">
+                        <label class="form-label">Is your business incorporated with the Corporate Affairs Commission (CAC)?</label>
+                        <div class="radio-options">
+                            <label class="radio-option radio-orange" data-value="yes">
+                                <input type="radio" name="has_cac" value="yes">
+                                <span class="radio-custom"></span>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option" data-value="no">
+                                <input type="radio" name="has_cac" value="no">
+                                <span class="radio-custom"></span>
+                                <span>No</span>
+                            </label>
+                        </div>
+                        <div class="form-error" id="cac-error" style="display: none;">CAC registration is required for business accounts</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="business_type" class="form-label">Select business registration type</label>
+                        <select id="business_type" name="business_type" class="form-control" required>
+                            <option value="">Select business type</option>
+                            <option value="sole_proprietorship">Sole Proprietorship</option>
+                            <option value="partnership">Partnership</option>
+                            <option value="limited_liability">Limited Liability Company</option>
+                            <option value="enterprise">Business Enterprise</option>
+                            <option value="nonprofit">Non-profit Organization</option>
+                        </select>
+                    </div>
+
+                    <div class="doc-requirements">
+                        <h4><i class="fas fa-info-circle" style="color: #F5A623;"></i> Document required to verify this business type</h4>
+                        <ol>
+                            <li>Application for Registration for Business Name form (CAC/BN/1 or Form A)</li>
+                            <li>Business owner's representation ID</li>
+                            <li>CAC Certificate</li>
+                            <li>Operating License where business is regulated</li>
+                            <li>Operational Business Address- attach proof of address</li>
+                            <li>SCUML Certificate (Optional)</li>
+                            <li>TIN or TIN certificate</li>
+                            <li>Website/Social media URL</li>
+                        </ol>
+                    </div>
+
+                    <div class="step-buttons">
+                        <button type="button" class="btn btn-primary btn-next" id="toStep2">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Personal Information -->
+                <div class="step" id="step2">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name" class="form-label">First name</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control" required>
+                            <div class="form-hint">Enter your first and last name as they appear on your government ID</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name" class="form-label">Last name</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Enter a valid email address</label>
+                        <div class="verify-field">
+                            <input type="email" id="email" name="email" class="form-control" placeholder="email@example.com" required>
+                            <button type="button" class="verify-button">VERIFY</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="+234 800 123 4567">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country" class="form-label">Country</label>
+                        <div class="select-with-icon">
+                            <div class="select-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <select id="country" name="country" class="form-control" required>
+                                <option value="">Select your country</option>
+                                <option value="NG" selected>Nigeria</option>
+                                <option value="GH">Ghana</option>
+                                <option value="KE">Kenya</option>
+                                <option value="ZA">South Africa</option>
+                                <option value="RW">Rwanda</option>
+                                <option value="UG">Uganda</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="step-buttons">
+                        <button type="button" class="btn btn-secondary" id="backToStep1">Back</button>
+                        <button type="button" class="btn btn-primary" id="toStep3">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Business Verification -->
+                <div class="step" id="step3">
+                    <div class="form-group">
+                        <label for="business_address" class="form-label">Business Address</label>
+                        <input type="text" id="business_address" name="business_address" class="form-control" placeholder="Enter your business address" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="business_state" class="form-label">State</label>
+                            <input type="text" id="business_state" name="business_state" class="form-control" placeholder="State" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="business_city" class="form-label">City</label>
+                            <input type="text" id="business_city" name="business_city" class="form-control" placeholder="City" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="business_category" class="form-label">Business Category</label>
+                        <div class="select-with-icon">
+                            <div class="select-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <select id="business_category" name="business_category" class="form-control" required>
+                                <option value="">Select your business category</option>
+                                <option value="ecommerce">Ecommerce / Retail</option>
+                                <option value="saas">SaaS / Software</option>
+                                <option value="education">Education / Learning</option>
+                                <option value="finance">Financial Services</option>
+                                <option value="travel">Travel / Hospitality</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="gaming">Gaming / Entertainment</option>
+                                <option value="nonprofit">Non-profit / Charity</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cac_number" class="form-label">CAC Registration Number</label>
+                            <input type="text" id="cac_number" name="cac_number" class="form-control" placeholder="Enter CAC number" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tin" class="form-label">TIN or TIN certificate</label>
+                            <input type="text" id="tin" name="tin" class="form-control" placeholder="Enter TIN" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website" class="form-label">Website/Social media URL (Optional)</label>
+                        <input type="url" id="website" name="website" class="form-control" placeholder="https://yourcompany.com">
+                    </div>
+
+                    <div class="step-buttons">
+                        <button type="button" class="btn btn-secondary" id="backToStep2">Back</button>
+                        <button type="button" class="btn btn-primary" id="toStep4">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Security & Finish -->
+                <div class="step" id="step4">
+                    <div class="form-group">
+                        <label for="password" class="form-label">Choose a password</label>
+                        <div class="password-field">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="••••••••••••••" required>
+                            <button type="button" class="password-toggle" tabindex="-1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error" id="password-error">Password must contain an uppercase letter</div>
+                    </div>
+                    
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">I acknowledge that I have read, understood, and agree to be bound by HamsukyPay's <a href="#" class="login-link">Merchant Services Agreement (MSA)</a>, <a href="#" class="login-link">Terms and Conditions</a>, and <a href="#" class="login-link">Privacy Notice</a>.</label>
+                    </div>
+
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="marketing" name="marketing">
+                        <label for="marketing">I agree to receive updates and promotional offers from HamsukyPay.</label>
+                    </div>
+                    
+                    <div class="step-buttons">
+                        <button type="button" class="btn btn-secondary" id="backToStep3">Back</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="register-footer">
+                <p>Already have an account? <a href="{% url 'payments:merchant_login' %}" class="login-link">Log in</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <ul class="footer-links">
+                    <li><a href="{% url 'payments:home' %}">Home</a></li>
+                    <li><a href="{% url 'payments:merchant_api_docs' %}">API Docs</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+                
+                <p class="copyright">&copy; 2025 HamsukyPay. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Multi-step form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.step');
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const form = document.getElementById('registrationForm');
+            
+            // Navigation buttons
+            const toStep2 = document.getElementById('toStep2');
+            const toStep3 = document.getElementById('toStep3');
+            const toStep4 = document.getElementById('toStep4');
+            const backToStep1 = document.getElementById('backToStep1');
+            const backToStep2 = document.getElementById('backToStep2');
+            const backToStep3 = document.getElementById('backToStep3');
+            
+            // CAC validation
+            const cacQuestion = document.getElementById('cac-question');
+            const cacError = document.getElementById('cac-error');
+            const radioOptions = document.querySelectorAll('.radio-option');
+            let hasCac = null;
+            
+            // Show a specific step
+            function showStep(stepNumber) {
+                steps.forEach(step => step.classList.remove('active'));
+                progressSteps.forEach(step => {
+                    step.classList.remove('active');
+                    step.classList.remove('completed');
+                });
+                
+                // Mark current step as active
+                document.getElementById(`step${stepNumber}`).classList.add('active');
+                
+                // Update progress indicators
+                for (let i = 1; i <= stepNumber; i++) {
+                    const step = document.querySelector(`.progress-step[data-step="${i}"]`);
+                    if (i < stepNumber) {
+                        step.classList.add('completed');
+                    } else {
+                        step.classList.add('active');
+                    }
+                }
+            }
+
+            // Form validation by step
+            function validateStep(stepNumber) {
+                const currentStep = document.getElementById(`step${stepNumber}`);
+                const requiredFields = currentStep.querySelectorAll('[required]');
+                
+                let isValid = true;
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        isValid = false;
+                        field.classList.add('error');
+                    } else {
+                        field.classList.remove('error');
+                    }
+                });
+                
+                // Additional validation for step 1 - CAC requirement for businesses
+                if (stepNumber === 1) {
+                    const accountType = document.getElementById('account_type').value;
+                    if (accountType === 'business' && hasCac === 'no') {
+                        cacError.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        cacError.style.display = 'none';
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            // Radio options handling
+            radioOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    const input = this.querySelector('input');
+                    
+                    // Unselect all options first
+                    radioOptions.forEach(opt => {
+                        opt.classList.remove('selected');
+                        opt.querySelector('input').checked = false;
+                    });
+                    
+                    // Select this option
+                    this.classList.add('selected');
+                    input.checked = true;
+                    
+                    // Store CAC status
+                    hasCac = value;
+                    
+                    // Show error if business without CAC
+                    if (document.getElementById('account_type').value === 'business' && value === 'no') {
+                        cacError.style.display = 'block';
+                    } else {
+                        cacError.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Navigation event listeners
+            toStep2.addEventListener('click', function() {
+                if (validateStep(1)) {
+                    showStep(2);
+                }
+            });
+            
+            toStep3.addEventListener('click', function() {
+                if (validateStep(2)) {
+                    showStep(3);
+                }
+            });
+            
+            toStep4.addEventListener('click', function() {
+                if (validateStep(3)) {
+                    showStep(4);
+                }
+            });
+            
+            backToStep1.addEventListener('click', function() {
+                showStep(1);
+            });
+            
+            backToStep2.addEventListener('click', function() {
+                showStep(2);
+            });
+            
+            backToStep3.addEventListener('click', function() {
+                showStep(3);
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                if (!validateStep(4)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Toggle switch for business/individual
+            const toggleSlider = document.querySelector('.toggle-slider');
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            const accountTypeInput = document.getElementById('account_type');
+            
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.dataset.mode === 'individual') {
+                        toggleSlider.classList.add('active');
+                        accountTypeInput.value = 'individual';
+                        cacQuestion.style.display = 'none';
+                    } else {
+                        toggleSlider.classList.remove('active');
+                        accountTypeInput.value = 'business';
+                        cacQuestion.style.display = 'block';
+                    }
+                });
+            });
+            
+            toggleSlider.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const isIndividual = this.classList.contains('active');
+                
+                toggleOptions.forEach(opt => {
+                    if ((opt.dataset.mode === 'individual' && isIndividual) || 
+                        (opt.dataset.mode === 'business' && !isIndividual)) {
+                        opt.classList.add('active');
+                    } else {
+                        opt.classList.remove('active');
+                    }
+                });
+                
+                accountTypeInput.value = isIndividual ? 'individual' : 'business';
+                
+                // Toggle CAC question visibility
+                if (isIndividual) {
+                    cacQuestion.style.display = 'none';
+                } else {
+                    cacQuestion.style.display = 'block';
+                }
+            });
+            
+            // Password visibility toggle
+            const passwordToggle = document.querySelector('.password-toggle');
+            const passwordInput = document.getElementById('password');
+            
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Change icon
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+            
+            // Email verification button
+            const verifyButton = document.querySelector('.verify-button');
+            
+            verifyButton.addEventListener('click', function() {
+                const email = document.getElementById('email').value;
+                if (email && email.includes('@')) {
+                    alert('Verification email sent to ' + email);
+                } else {
+                    alert('Please enter a valid email address');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
