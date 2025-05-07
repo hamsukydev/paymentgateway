@@ -73,33 +73,52 @@ WSGI_APPLICATION = 'hamsukypay.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Database configuration with fallback to SQLite
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE', 'hamsukypay'),
-        'USER': os.getenv('MYSQL_USER', 'root'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
-        'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
-        'PORT': os.getenv('MYSQL_PORT', '3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
-}
+# Database configuration
+USE_SQLITE = os.getenv('USE_SQLITE', 'False') == 'True'
 
-# Use PostgreSQL in production
-if os.getenv('DATABASE_URL'):
+if USE_SQLITE:
+    # Use SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif os.getenv('DATABASE_URL'):
+    # Use DATABASE_URL if provided (for PostgreSQL with dj_database_url)
     try:
-        DATABASES['default'] = dj_database_url.config(
-            conn_max_age=600,
-            connect_timeout=5,
-            ssl_require=True,
-        )
-    except:
-        # Fall back to SQLite if PostgreSQL connection fails
-        print("Warning: Could not connect to PostgreSQL, falling back to SQLite")
-        pass
+        DATABASES = {
+            'default': dj_database_url.config(
+                conn_max_age=600,
+                connect_timeout=5,
+                ssl_require=True,
+            )
+        }
+    except Exception as e:
+        print(f"Warning: Error connecting with DATABASE_URL: {e}")
+        # Fall back to SQLite
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+else:
+    # Use MySQL configuration
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('MYSQL_DATABASE', 'hamsukypay'),
+            'USER': os.getenv('MYSQL_USER', 'root'),
+            'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
+            'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
+            'PORT': os.getenv('MYSQL_PORT', '3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'ssl': os.getenv('MYSQL_SSL_MODE') == 'REQUIRED',
+            },
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
