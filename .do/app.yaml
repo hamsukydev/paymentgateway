@@ -22,9 +22,21 @@ services:
       value: ${APP_DOMAIN},*.ondigitalocean.app
     - key: PRODUCTION
       value: "True"
-    - key: DATABASE_URL
+    - key: MYSQL_DATABASE
+      value: ${db.DATABASE}
+    - key: MYSQL_USER
       scope: RUN_TIME
-      value: ${DATABASE_URL}
+      value: ${db.USERNAME}
+    - key: MYSQL_PASSWORD
+      scope: RUN_TIME
+      value: ${db.PASSWORD}
+    - key: MYSQL_HOST
+      scope: RUN_TIME
+      value: ${db.HOSTNAME}
+    - key: MYSQL_PORT
+      value: ${db.PORT}
+    - key: MYSQL_SSL_MODE
+      value: "REQUIRED"
     - key: EMAIL_HOST
       scope: RUN_TIME
       value: ${EMAIL_HOST}
@@ -42,9 +54,9 @@ services:
   routes:
     - path: /
 databases:
-- name: hamsukypay-db
-  engine: PG
-  version: "14"
+- name: db
+  engine: MYSQL
+  version: "8"
   production: true
   db_name: hamsukypay
   db_user: hamsukypay
