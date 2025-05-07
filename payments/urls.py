@@ -52,6 +52,7 @@ urlpatterns = [
     # New pages for pricing and solutions
     path('pricing/', views.pricing_view, name='pricing'),
     path('solutions/', views.solutions_view, name='solutions'),
+    path('contact/', views.contact_view, name='contact'),  # Added contact page URL
     path('currency-converter/', views.currency_converter, name='currency_converter'), # Added currency converter URL
     
     # Developer pages

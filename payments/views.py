@@ -40,7 +40,7 @@ from .serializers.customer_serializers import CustomerSerializer
 from .serializers.payment_plan_serializers import PaymentPlanSerializer  
 from .serializers.subscription_serializers import SubscriptionSerializer
 from .serializers.merchant_serializers import MerchantSerializer
-from .webhook_service import process_webhook
+from .webhook_service import process_webhook, WebhookService  # Added WebhookService import
 
 # These are likely needed based on your code references
 from .models import AnalyticsData, PaymentMethodStats
@@ -52,7 +52,18 @@ logger = logging.getLogger(__name__)
 
 # Home page view
 def home_view(request):
-    return render(request, 'payments/home.html')
+    """View for the home page"""
+    try:
+        # Pass some basic context to enhance the homepage
+        context = {
+            'page_title': 'Modern Payment Gateway',
+            'current_year': timezone.now().year
+        }
+        return render(request, 'payments/home.html', context)
+    except Exception as e:
+        # Log any errors to help with debugging
+        logger.error(f"Error in home_view: {str(e)}")
+        return HttpResponse("An error occurred while loading the page. Please try again later.", status=500)
 
 # Admin Dashboard Data API
 @staff_member_required
@@ -197,63 +208,91 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
 class InitiatePaymentView(APIView):
     def post(self, request):
-        serializer = InitiateTransactionSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            email = data.get('email')
-            amount = data.get('amount')
-            currency = data.get('currency', 'NGN')
-            description = data.get('description', '')
-            metadata = data.get('metadata', {})
-            callback_url = data.get('callback_url', request.build_absolute_uri(reverse('payments:verify-payment')))
+        try:
+            # Log incoming request for debugging
+            logger.debug(f"Payment initialization request: {request.data}")
             
-            # Create or get customer
-            customer, created = Customer.objects.get_or_create(
-                email=email,
-                defaults={'name': email.split('@')[0]}
-            )
+            serializer = InitiateTransactionSerializer(data=request.data)
+            if serializer.is_valid():
+                data = serializer.validated_data
+                email = data.get('email')
+                amount = data.get('amount')
+                currency = data.get('currency', 'NGN')
+                description = data.get('description', '')
+                metadata = data.get('metadata', {})
+                callback_url = data.get('callback_url', request.build_absolute_uri(reverse('payments:verify-payment')))
+                
+                # Create or get customer
+                customer, created = Customer.objects.get_or_create(
+                    email=email,
+                    defaults={'name': email.split('@')[0]}
+                )
+                
+                # Create transaction record
+                reference = Transaction.generate_reference()
+                transaction = Transaction.objects.create(
+                    reference=reference,
+                    amount=amount,
+                    currency=currency,
+                    customer=customer,
+                    email=email,
+                    status='pending',
+                    description=description
+                )
+                
+                # Set metadata separately
+                if metadata:
+                    transaction.set_metadata(metadata)
+                
+                # Initialize payment with our payment processor
+                payment_data = {
+                    'amount': float(amount),
+                    'email': email,
+                    'currency': currency,
+                    'reference': reference,
+                    'callback_url': callback_url,
+                    'metadata': metadata
+                }
+                
+                # Call the payment processor
+                result = PaymentProcessor.initialize_payment(payment_data)
+                
+                if result['status'] == 'success':
+                    # Update transaction with payment URL
+                    transaction.payment_url = result['data']['authorization_url']
+                    transaction.save()
+                    
+                    return Response({
+                        'status': 'success',
+                        'message': 'Payment initialized',
+                        'data': {
+                            'reference': transaction.reference,
+                            'amount': float(transaction.amount),
+                            'authorization_url': result['data']['authorization_url'],
+                            'access_code': result['data'].get('access_code', '')
+                        }
+                    }, status=status.HTTP_200_OK)
+                else:
+                    transaction.status = 'failed'
+                    transaction.save()
+                    
+                    return Response({
+                        'status': 'error',
+                        'message': 'Could not initialize payment',
+                        'data': result.get('data', {})
+                    }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Create transaction record - excluding original_amount field
-            reference = Transaction.generate_reference()
-            transaction = Transaction.objects.create(
-                reference=reference,
-                amount=amount,
-                currency=currency,
-                customer=customer,
-                email=email,
-                status='pending',
-                description=description
-            )
-            
-            # Set metadata separately
-            if metadata:
-                transaction.set_metadata(metadata)
-                transaction.save()
-            
-            # Initialize payment with our "payment processor"
-            payment_data = {
-                'amount': float(amount),
-                'email': email,
-                'currency': currency,
-                'reference': reference,
-                'callback_url': callback_url,
-                'metadata': metadata
-            }
-            
-            # Call the payment processor
-            result = PaymentProcessor.initialize_payment(payment_data)
-            
-            if result['status'] == 'success':
-                return Response(result, status=status.HTTP_200_OK)
-            else:
-                # Update transaction status
-                transaction.status = 'failed'
-                transaction.save()
-                return Response({
-                    'status': 'error',
-                    'message': 'Failed to initiate payment'
-                }, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'status': 'error',
+                'message': 'Invalid request data',
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Payment initialization error: {str(e)}")
+            return Response({
+                'status': 'error',
+                'message': 'An error occurred during payment initialization'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Mobile Money Payment Processing
@@ -638,34 +677,6 @@ class MerchantViewSet(viewsets.ModelViewSet):
             return Merchant.objects.all()
         return Merchant.objects.filter(user=user)
     
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        try:
-            merchant = Merchant.objects.get(user=request.user)
-            serializer = self.get_serializer(merchant)
-            return Response(serializer.data)
-        except Merchant.DoesNotExist:
-            return Response(
-                {"detail": "Merchant profile not found for this user."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-    
-    @action(detail=False, methods=['get'])
-    def dashboard_stats(self, request):
-        try:
-            merchant = Merchant.objects.get(user=request.user)
-        except Merchant.DoesNotExist:
-            return Response(
-                {"detail": "Merchant profile not found for this user."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # Calculate dashboard statistics
-        total_transactions = Transaction.objects.filter(merchant=merchant).count()
-        
-        # Calculate success rate
-        success_count = Transaction.objects.filter(merchant=merchant, status='success').count()
-        success_rate = 0
         if total_transactions > 0:
             success_rate = round((success_count / total_transactions) * 100)
         
@@ -5897,4 +5908,58 @@ public class HamsukyPayExample {
     }
     
     return render(request, 'admin_custom/documentation.html', context)
-# ...existing code...
+
+def contact_view(request):
+    """View for the contact page"""
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Validate form fields
+        if not all([name, email, subject, message]):
+            return render(request, 'payments/contact.html', {
+                'error': 'Please fill in all required fields',
+                'form_data': request.POST
+            })
+            
+        # Basic email validation
+        if '@' not in email or '.' not in email:
+            return render(request, 'payments/contact.html', {
+                'error': 'Please enter a valid email address',
+                'form_data': request.POST
+            })
+            
+        try:
+            # Here you would typically send an email
+            # For now, we'll just simulate successful submission
+            
+            # You can implement real email sending using Django's send_mail
+            # from django.core.mail import send_mail
+            # send_mail(
+            #     f'Contact Form: {subject}',
+            #     f'Message from {name} ({email}):\n\n{message}',
+            #     email,
+            #     ['support@hamsukypay.com'],
+            #     fail_silently=False,
+            # )
+            
+            return render(request, 'payments/contact.html', {
+                'success': 'Your message has been sent. We will get back to you soon!',
+                'form_data': {}  # Clear form data on success
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in contact form: {str(e)}")
+            return render(request, 'payments/contact.html', {
+                'error': 'There was a problem sending your message. Please try again later.',
+                'form_data': request.POST
+            })
+    
+    return render(request, 'payments/contact.html', {
+        'page_title': 'Contact Us',
+        'current_year': timezone.now().year,
+        'form_data': {}
+    })

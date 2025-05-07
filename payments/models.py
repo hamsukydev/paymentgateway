@@ -79,12 +79,32 @@ class Merchant(models.Model):
     public_key = models.CharField(max_length=64, unique=True)
     secret_key = models.CharField(max_length=64, unique=True)
     is_active = models.BooleanField(default=True)
-    transaction_fee_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=2.5)
+    
+    # Transaction fee structure
+    local_transaction_fee_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=1.5)
+    local_transaction_flat_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Removed the NGN 100 flat fee
+    local_transaction_fee_waiver_threshold = models.DecimalField(max_digits=10, decimal_places=2, default=2500)  # Kept for backward compatibility
+    local_transaction_fee_cap = models.DecimalField(max_digits=10, decimal_places=2, default=1500)  # Maximum fee cap for local transactions
+    international_transaction_fee_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=3.9)
+    international_transaction_flat_fee = models.DecimalField(max_digits=10, decimal_places=2, default=100)  # NGN 100 flat fee for international
+    
+    # Settlement options
+    SETTLEMENT_CURRENCY_CHOICES = (
+        ('NGN', 'Nigerian Naira'),
+        ('USD', 'US Dollar'),
+    )
+    settlement_currency = models.CharField(max_length=3, choices=SETTLEMENT_CURRENCY_CHOICES, default='NGN')
     settlement_bank = models.CharField(max_length=255, blank=True, null=True)
     settlement_account = models.CharField(max_length=20, blank=True, null=True)
     settlement_account_name = models.CharField(max_length=255, blank=True, null=True)
+    
+    # For backward compatibility with existing code
+    @property
+    def transaction_fee_percentage(self):
+        return self.local_transaction_fee_percentage
+    
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)  # Changed from auto_now_add to auto_now
     
     def __str__(self):
         return self.business_name

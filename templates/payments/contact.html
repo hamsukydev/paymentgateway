@@ -1,0 +1,546 @@
+{% extends "payments/base.html" %}
+{% block title %}Contact Us - HamsukyPay{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --paystack-blue: #0ba4db;
+        --paystack-dark-blue: #011b33;
+        --paystack-light-blue: #f4fbff;
+        --paystack-green: #3bb75e;
+        --border-radius-sm: 6px;
+        --border-radius: 8px;
+        --border-radius-lg: 12px;
+    }
+    
+    /* Modern Paystack-inspired styling */
+    .hero-section {
+        background: linear-gradient(135deg, var(--paystack-dark-blue) 0%, #01294d 100%);
+        padding: 80px 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 30%;
+        height: 100%;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="rgba(255, 255, 255, 0.05)" d="M41.3,-51.2C54.4,-42.9,66.4,-30.4,70.9,-15.3C75.5,-0.3,72.8,17.3,64.1,30.9C55.5,44.5,41.1,54.1,25.5,61.2C10,68.3,-6.6,72.9,-21.8,68.4C-36.9,64,-50.6,50.4,-59.5,34.6C-68.5,18.8,-72.6,0.7,-68.8,-15C-64.9,-30.7,-53.1,-44.1,-39.4,-52.3C-25.7,-60.5,-10.1,-63.5,3,-67.2C16.1,-70.8,28.2,-59.5,41.3,-51.2Z" transform="translate(100 100)" /></svg>') no-repeat center center;
+        opacity: 0.5;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+        font-weight: 300;
+        max-width: 800px;
+        margin-bottom: 2rem;
+    }
+    
+    .contact-container {
+        margin-top: -60px;
+        position: relative;
+        z-index: 5;
+    }
+    
+    .contact-card {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .contact-tabs {
+        display: flex;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .contact-tab {
+        padding: 1.25rem 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+    }
+    
+    .contact-tab.active {
+        color: var(--paystack-blue);
+        border-bottom: 3px solid var(--paystack-blue);
+    }
+    
+    .contact-content {
+        padding: 2.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #344054;
+    }
+    
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #344054;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #d0d5dd;
+        border-radius: var(--border-radius-sm);
+        transition: all 0.15s ease-in-out;
+        box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    
+    .form-control:focus {
+        border-color: var(--paystack-blue);
+        box-shadow: 0 0 0 4px rgba(11, 164, 219, 0.1);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    .btn-primary {
+        background-color: var(--paystack-blue);
+        border: none;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        border-radius: var(--border-radius-sm);
+        transition: all 0.3s ease;
+        border: none !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0992c2;
+        transform: translateY(-1px);
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .alert-success {
+        background-color: #ecfdf3;
+        color: var(--paystack-green);
+        border: 1px solid #d1fadf;
+    }
+    
+    .alert-danger {
+        background-color: #fef3f2;
+        border: 1px solid #fee4e2;
+        color: #d92d20;
+    }
+    
+    .contact-info-section {
+        background-color: var(--paystack-light-blue);
+        padding: 80px 0;
+    }
+    
+    .contact-card-alt {
+        padding: 2rem;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .contact-card-alt:hover {
+        box-shadow: 0 10px 25px rgba(16, 24, 40, 0.1);
+        transform: translateY(-5px);
+    }
+    
+    .contact-icon {
+        width: 48px;
+        height: 48px;
+        background-color: var(--paystack-light-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: var(--paystack-blue);
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-card-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--paystack-dark-blue);
+        font-weight: 600;
+    }
+    
+    .contact-card-text {
+        color: #4d5a68;
+        margin-bottom: 1.5rem;
+    }
+    
+    .link-with-arrow {
+        display: inline-flex;
+        align-items: center;
+        color: var(--paystack-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .link-with-arrow i {
+        margin-left: 0.5rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .link-with-arrow:hover i {
+        transform: translateX(3px);
+    }
+    
+    .faq-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .faq-item {
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+    }
+    
+    .faq-question {
+        margin: 0;
+        font-weight: 600;
+        color: var(--paystack-dark-blue);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .faq-question::after {
+        content: '\f107';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        transition: transform 0.3s ease;
+    }
+    
+    .faq-answer {
+        margin-top: 1rem;
+        color: #4d5a68;
+        display: none;
+    }
+    
+    .faq-item.active .faq-question::after {
+        transform: rotate(180deg);
+    }
+    
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+    
+    .offices-section {
+        background-color: white;
+        padding: 80px 0;
+    }
+    
+    .office-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+    }
+    
+    .office-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .office-content {
+        padding: 1.5rem;
+    }
+    
+    .office-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .office-address {
+        color: #4d5a68;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--paystack-dark-blue);
+    }
+    
+    .section-subtitle {
+        text-align: center;
+        color: #4d5a68;
+        max-width: 700px;
+        margin: 0 auto 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container hero-content">
+        <h1 class="hero-title">Get in touch</h1>
+        <p class="hero-subtitle">Have a question about HamsukyPay? We're here to help! Fill out the form below and we'll get back to you as soon as possible.</p>
+    </div>
+</div>
+
+<!-- Contact Form Section -->
+<div class="container contact-container">
+    <div class="contact-card">
+        <div class="contact-tabs">
+            <div class="contact-tab active">Contact Support</div>
+            <div class="contact-tab">Sales Inquiry</div>
+        </div>
+        <div class="contact-content">
+            {% if success %}
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i> {{ success }}
+            </div>
+            {% elif error %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+            </div>
+            {% endif %}
+            
+            <form method="post" action="{% url 'payments:contact' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required value="{{ form_data.name|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required value="{{ form_data.email|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="subject" class="form-label">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control" placeholder="What is this regarding?" required value="{{ form_data.subject|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea id="message" name="message" class="form-control" placeholder="Tell us how we can help" required>{{ form_data.message|default:'' }}</textarea>
+                </div>
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Alternative Contact Methods Section -->
+<div class="contact-info-section mt-5">
+    <div class="container">
+        <h2 class="section-title">Other ways to reach us</h2>
+        <p class="section-subtitle">Choose the most convenient way to get in touch with our team</p>
+        
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="contact-card-alt">
+                    <div class="contact-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="contact-card-title">Customer Support</h3>
+                    <p class="contact-card-text">Need help with your account or have questions about our services? Our support team is ready to assist you.</p>
+                    <a href="mailto:support@hamsukypay.com" class="link-with-arrow">
+                        support@hamsukypay.com <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="contact-card-alt">
+                    <div class="contact-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="contact-card-title">Sales Inquiries</h3>
+                    <p class="contact-card-text">Interested in our enterprise solutions or want to discuss custom pricing? Talk to our sales team.</p>
+                    <a href="mailto:sales@hamsukypay.com" class="link-with-arrow">
+                        sales@hamsukypay.com <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="contact-card-alt">
+                    <div class="contact-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3 class="contact-card-title">Partnerships</h3>
+                    <p class="contact-card-text">Looking to partner with HamsukyPay? We're always open to exciting collaboration opportunities.</p>
+                    <a href="mailto:partners@hamsukypay.com" class="link-with-arrow">
+                        partners@hamsukypay.com <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Office Locations Section -->
+<div class="offices-section">
+    <div class="container">
+        <h2 class="section-title">Our Offices</h2>
+        <p class="section-subtitle">Visit us at one of our locations</p>
+        
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="office-card">
+                    <div class="office-image" style="background-image: url('https://images.unsplash.com/photo-1568380402469-4d139b392019?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="office-content">
+                        <h4 class="office-title">Lagos Headquarters</h4>
+                        <p class="office-address">123 Payment Boulevard<br>Victoria Island, Lagos<br>Nigeria</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="office-card">
+                    <div class="office-image" style="background-image: url('https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="office-content">
+                        <h4 class="office-title">Accra Office</h4>
+                        <p class="office-address">45 Independence Avenue<br>Accra<br>Ghana</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="office-card">
+                    <div class="office-image" style="background-image: url('https://images.unsplash.com/photo-1528747045269-390fe33c19f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="office-content">
+                        <h4 class="office-title">San Francisco Office</h4>
+                        <p class="office-address">560 Mission Street<br>San Francisco, CA 94105<br>United States</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<div class="contact-info-section">
+    <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Find quick answers to common questions about HamsukyPay</p>
+        
+        <div class="faq-container">
+            <div class="faq-item active">
+                <h3 class="faq-question">How long does it take to set up an account?</h3>
+                <div class="faq-answer">
+                    <p>Setting up a HamsukyPay account takes only a few minutes. After registering, you'll need to complete verification which typically takes 1-2 business days depending on the information provided.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">What payment methods do you support?</h3>
+                <div class="faq-answer">
+                    <p>We support a wide range of payment methods including credit/debit cards, bank transfers, mobile money, USSD, and QR code payments. Our platform is constantly expanding to incorporate new payment options across Africa and beyond.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">How quickly are funds settled to my account?</h3>
+                <div class="faq-answer">
+                    <p>Standard settlement is within 24-48 hours, but we also offer options for instant settlement for verified merchants. Enterprise customers can negotiate custom settlement schedules based on their business needs.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">What are your transaction fees?</h3>
+                <div class="faq-answer">
+                    <p>Our transaction fees start at 1.5% for standard plans, with volume discounts available. We offer competitive rates compared to other payment providers in the market. Visit our <a href="{% url 'payments:pricing' %}">pricing page</a> for detailed information about our fee structure.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <p class="mb-4">Can't find what you're looking for? Our help center has more answers.</p>
+            <a href="{% url 'payments:merchant_support' %}" class="btn btn-primary">Visit Help Center</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(event) {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            let valid = true;
+            
+            // Simple email validation
+            if (!email.includes('@') || !email.includes('.')) {
+                valid = false;
+                document.getElementById('email').classList.add('is-invalid');
+            }
+            
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+        
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.contact-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // FAQ accordion functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', function() {
+                item.classList.toggle('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

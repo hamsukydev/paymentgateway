@@ -5,3 +5,8 @@ gunicorn>=20.1.0  # WSGI server
 python-dotenv>=0.21.0
 whitenoise>=6.3.0  # For static files
 dj-database-url>=1.2.0  # For database URL configuration
+crypto==1.4.1
+cryptography==44.0.0
+requests>=2.31.0
+django-cors-headers>=4.0.0  # For handling CORS
+sentry-sdk>=1.14.0  # For error tracking (optional)

@@ -1,10 +1,7 @@
-"""
-Django settings for hamsukypay project.
-"""
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url  # Add this import
 
 # Load environment variables from .env file
 load_dotenv()
@@ -43,6 +40,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,6 +73,7 @@ WSGI_APPLICATION = 'hamsukypay.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Database configuration with fallback to SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -82,6 +81,18 @@ DATABASES = {
     }
 }
 
+# Use PostgreSQL in production
+if os.getenv('DATABASE_URL'):
+    try:
+        DATABASES['default'] = dj_database_url.config(
+            conn_max_age=600,
+            connect_timeout=5,
+            ssl_require=True,
+        )
+    except:
+        # Fall back to SQLite if PostgreSQL connection fails
+        print("Warning: Could not connect to PostgreSQL, falling back to SQLite")
+        pass
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -123,6 +134,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+# Configure WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -156,3 +170,4 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@hamsukypay.com')
+

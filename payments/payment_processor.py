@@ -49,6 +49,13 @@ class StandalonePaymentProcessor:
         'verve',
     ]
     
+    # Nigerian cards BIN ranges (simplified for demonstration)
+    NIGERIAN_CARD_BINS = [
+        '506099', '539941', '539983',  # Verve
+        '506101', '506102', '506103',  # Nigerian Mastercard
+        '428760', '428761', '428762',  # Nigerian Visa
+    ]
+    
     def __init__(self, merchant=None):
         self.merchant = merchant
         self.success_rate = getattr(settings, 'PAYMENT_SUCCESS_RATE', 0.95)
@@ -604,6 +611,12 @@ class StandalonePaymentProcessor:
                 'message': f"Transaction is already in {tx.status} state"
             }
         
+        # Check if transaction is local or international
+        is_local = self._is_local_transaction(payment_details)
+        
+        # Calculate transaction fee
+        fee_percentage, flat_fee, total_fee = self.calculate_transaction_fee(tx.amount, is_local)
+        
         # Validate payment details
         payment_method = tx.payment_method
         validation_result = self._validate_payment_details(payment_method, payment_details)
@@ -647,6 +660,19 @@ class StandalonePaymentProcessor:
                 if tx.status == 'success':
                     tx.completed_at = timezone.now()
                     
+                    # Save fee information in metadata
+                    metadata = tx.get_metadata() or {}
+                    fee_info = {
+                        'is_local': is_local,
+                        'fee_percentage': float(fee_percentage),
+                        'flat_fee': float(flat_fee),
+                        'total_fee': float(total_fee),
+                        'net_amount': float(tx.amount - total_fee),
+                        'settlement_currency': self.merchant.settlement_currency if self.merchant else 'NGN'
+                    }
+                    metadata['fee_info'] = fee_info
+                    tx.set_metadata(metadata)
+                    
                     # Save payment method for customer if available
                     if tx.customer and payment_method in ['credit_card', 'debit_card', 'bank_transfer']:
                         self._save_customer_payment_method(tx.customer, payment_details)
@@ -663,6 +689,16 @@ class StandalonePaymentProcessor:
             # Add transaction reference to result
             if 'reference' not in result:
                 result['reference'] = reference
+            
+            # Add fee information to result if successful
+            if result.get('success') and tx.status == 'success':
+                result['fee_info'] = {
+                    'is_local': is_local,
+                    'fee_percentage': float(fee_percentage),
+                    'flat_fee': float(flat_fee),
+                    'total_fee': float(total_fee),
+                    'net_amount': float(tx.amount - total_fee)
+                }
                 
             return result
             
@@ -907,6 +943,90 @@ class StandalonePaymentProcessor:
             transaction.save()
             
             return False, transaction
+
+    def _is_local_transaction(self, payment_details):
+        """
+        Determine if a transaction is local (Nigerian) or international
+        based on the payment method and details.
+        
+        For card transactions, checks the BIN (first 6 digits) against known Nigerian card BINs.
+        For other payment methods, assumes they are local by default.
+        """
+        # If no merchant specified, default to local
+        if not self.merchant:
+            return True
+            
+        # For card payments, check the BIN number
+        if 'card' in payment_details:
+            card = payment_details.get('card', {})
+            card_number = card.get('number', '').replace(' ', '')
+            
+            if len(card_number) >= 6:
+                bin_number = card_number[:6]
+                
+                # Check if the BIN is in the Nigerian BIN ranges
+                if bin_number in self.NIGERIAN_CARD_BINS:
+                    return True
+                
+                # Additional checks could be performed here
+                # such as checking the issuing bank, etc.
+                
+                # If not explicitly identified as Nigerian, consider it international
+                return False
+                
+        # For bank transfers, USSD, and mobile money, these are typically local
+        if any(method in payment_details for method in ['bank', 'ussd', 'mobile']):
+            return True
+            
+        # Default assumption (can be refined based on additional data)
+        return True
+        
+    def calculate_transaction_fee(self, amount, is_local=True):
+        """
+        Calculate transaction fee based on whether the transaction is local or international.
+        
+        Local: 1.5% fee (no flat fee)
+        - Total fee capped at NGN 1500
+        
+        International: 3.9% of transaction amount + NGN 100 flat fee
+        
+        Returns:
+            Tuple of (fee_percentage, flat_fee, total_fee)
+        """
+        if not self.merchant:
+            # Default fees if no merchant is specified
+            if is_local:
+                fee_percentage = Decimal('1.5')
+                flat_fee = Decimal('0')  # No flat fee for local transactions
+            else:
+                fee_percentage = Decimal('3.9')
+                flat_fee = Decimal('100')
+        else:
+            # Use merchant-specific fees
+            if is_local:
+                fee_percentage = self.merchant.local_transaction_fee_percentage
+                flat_fee = Decimal('0')  # No flat fee for local transactions
+            else:
+                fee_percentage = self.merchant.international_transaction_fee_percentage
+                flat_fee = self.merchant.international_transaction_flat_fee
+            
+        # Calculate the percentage fee
+        percentage_fee = (amount * fee_percentage) / Decimal('100')
+        
+        # Calculate total fee
+        total_fee = percentage_fee + flat_fee
+        
+        # Apply fee cap for local transactions
+        if is_local and self.merchant:
+            fee_cap = self.merchant.local_transaction_fee_cap
+            if total_fee > fee_cap:
+                total_fee = fee_cap
+        elif is_local:
+            # Default fee cap if no merchant specified
+            if total_fee > Decimal('1500'):
+                total_fee = Decimal('1500')
+        
+        return fee_percentage, flat_fee, total_fee
 
 
 def get_payment_processor(merchant=None):
